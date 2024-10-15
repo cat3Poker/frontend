@@ -1,0 +1,1 @@
+<div>Daily Reward</div>

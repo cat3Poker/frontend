@@ -1,0 +1,75 @@
+#footer{
+    position: relative;
+    background: #131620;
+}
+.footer-container{
+    max-width: 1832px;
+    color: #fff;
+    padding: 20px;
+    margin-left: 300px;
+}
+.KJKeiowbkll{
+    display: flex;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+}
+.reKJkslkjes .ksjhksw{
+    padding: 0px 24px 0px 48px;
+    white-space: nowrap;
+    line-height: 2.5;
+    /* margin-right: 40px; */
+}
+.v-line {
+    border-right: 1px solid #54616A26;
+}
+.reKJkslkjes.header{
+    width: 360px;
+}
+.handleLogenMakieninf{
+    padding: 20px 0;
+}
+.somewriteupsthatdescuriptsit{
+    color: #666E97;
+}
+.handleLogenMakieninf img{
+    width: 200px;
+}
+.Losekjklksjl{
+    margin-top: 20px;
+    margin-bottom: 14px;
+    display: flex;
+    font-weight: 700;
+    flex-direction: column;
+    margin-right: 20px;
+}
+.jklsjlJUIUe{
+    display: flex;
+    flex-direction: column;
+}
+.jklsjlJUIUe a {
+    color: #666E97;
+    margin: 3px 0;
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+.djhihKJek{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: dense;
+    gap: 1rem 0.2375rem;
+}
+.djhihKJek img{
+    width: 40px;
+    height: 40px;
+}
+.footer-container .l-line {
+    margin-top: 20px;
+    border: 1px solid #54616A26;
+}
+.folloernsnk{
+    text-align: center;
+    padding: 40px 0;
+    color: #666E97;
+    
+}

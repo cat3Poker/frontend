@@ -1,0 +1,33 @@
+.menu-bar{
+    position: fixed;
+    width: 300px;
+    background: #131620;
+    color: #666E97;
+    left: 15px;
+    z-index: 1000;
+}
+.menu-bar-container{
+    padding: 15px;
+    position: relative;
+}
+.menu-bar-container .content{
+    display: flex;
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 5px;
+    text-transform: uppercase;
+}
+.menu-bar-container .content:hover,.menu-bar-container .content.active, 
+.menu-bar-container .content.active svg, 
+.menu-bar-container .content:hover svg{
+    color: #00FF86;
+    stroke: #00FF86;
+    fill: #00FF86;
+}
+.menu-bar-container .item-icon{
+    padding: 5px;
+}
+.menu-bar-container .item-text{
+    padding: 3px;
+}
