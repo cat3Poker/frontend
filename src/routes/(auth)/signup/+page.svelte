@@ -2,7 +2,6 @@
     import { goto } from "$app/navigation";
     import { auth } from "$lib/store/activities.js";
     import Loader from "$lib/loader.svelte";
-    // import { app, api_script } from "$lib/store/screen.js";
      let password = ""
      let email = ""
      let agree = false

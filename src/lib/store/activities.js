@@ -3,8 +3,8 @@ import { writable} from "svelte/store"
 let _error = null
 export let error = writable(_error)
 
-let _success = null
-export let success = writable(_success)
+let _app = null
+export let app = writable(_app)
 
 let _message = []
 

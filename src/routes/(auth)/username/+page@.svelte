@@ -6,6 +6,7 @@
     export let data
     import CloseButton from "$lib/components/close-button.svelte";
     import { onMount } from "svelte";
+    import Loader from "$lib/loader.svelte";
     const emptyImg = new URL('$lib/images/empty.png', import.meta.url).href
     let defaultImg = new URL('$lib/images/default.png', import.meta.url).href
     let username = ""
@@ -13,6 +14,8 @@
     let country = ""
     let _country = ""
     $: load = false
+
+    $: track = load || !country || !username || !defaultImg
 
     onMount(async()=>{
         if(data._preLogin){
@@ -43,9 +46,6 @@
 
     const handleSubmit = (async()=>{
         load = true
-        if(country.toLowerCase() !== _country.toLowerCase()){
-            return toast.warning(`Please confirm your country "${_country}" is correctly written!`)
-        }
         if(!username || username.length <= 2){
             return toast.error("Username is invalid")
         }
@@ -112,9 +112,13 @@
 
 
                         <div class="buttons">
-                            <button on:click={handleSubmit} class="sc-iqseJM sc-bqiRlB cBmlor fnKcEH button button-big long">
+                            <button disabled={track} on:click={handleSubmit} class="sc-iqseJM sc-bqiRlB cBmlor fnKcEH button button-big long">
                                 <div class="button-inner">
-                                    Save
+                                    {#if load}
+                                        <Loader />
+                                    {:else}
+                                        Save
+                                    {/if}
                                 </div>
                             </button>
                         </div>

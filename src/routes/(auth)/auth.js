@@ -24,6 +24,19 @@ export class auth_Script {
         })
         return {status: this.status}
     }
+    async handleLogin(auth){ 
+        let path = "/auth/login"
+        await axios.post(this.url + path, {auth})
+        .then((res)=>{
+            setCookie("secret", res.data.token)
+            this.status = "success"
+        })
+        .catch((error)=>{
+            this.status = "failed"
+            toast.error(error.response.data.error)
+        })
+        return {status: this.status}
+    }
     async setUserName(data){
         let path = "/auth/set-username"
         await axios.post(this.url + path, {data})

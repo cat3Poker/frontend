@@ -1,14 +1,30 @@
-// Reexport your entry components here
+import axios from "axios"
+import { toast } from 'svelte-sonner' 
+import { user } from "$lib/store/profile.js"
+
 export class APP_script{
     constructor(){
-        this.backendURL = ""
-        this.isLogin = false
+        this.url = ""
         this.secret = ""
-        this.wallet = {
-            balance: 10000
-        }
     }
     backend_url(url){
-        this.backendURL = url
+        this.url = url
     }
+    async getUser(secret){
+        this.secret = secret
+        let path = "/api/profile/user"
+        await axios.get(this.url + path, {
+            headers:{
+                Authorization: `Bearer ${this.secret}`
+            }
+        })
+        .then((res)=>{
+            user.set(res.data.user)
+        })
+        .catch((error)=>{
+            this.status = "failed"
+            toast.error(error.response.data.error)
+        })
+    }
+
 }

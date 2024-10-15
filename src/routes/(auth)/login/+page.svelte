@@ -1,18 +1,23 @@
 <script>
     import { goto } from "$app/navigation";
-    // import Loader from "$lib/component/loader.svelte";
-    // import { app, api_script } from "$lib/store/screen.js";
+    import { auth } from "$lib/store/activities.js";
+    import Loader from "$lib/loader.svelte";
      let password = ""
      let email = ""
     $: load = false
+    $: isView = false
+
+    $: track = !password || !email || load
 
     const handleSubmit = (async()=>{
-        // load = true
-        // const { status, loading } = await $api_script.login(email, password )
-        // if(status === "success"){
-        //     window.location.href = $app.url; 
-        // }
-        // load = loading
+        load = true
+        const {status} = await $auth.handleLogin({
+            password, email
+        })
+        if(status === "success"){
+            window.location.href = "/"
+        }
+        load = false
     })
 
 </script>
@@ -34,33 +39,48 @@
             </div>
             <div class="input-control" >
                  <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="password" autocomplete="off" tabindex="2"   
-                placeholder="Login Password" bind:value={password}>
-                <svg xmlns:xlink="http://www.w3.org/1999/xlink" class="sc-gsDKAQ hxODWG icon">
-                    <use xlink:href="#icon_View"></use>
+                  {#if isView}
+                    <input type="text" autocomplete="off" tabindex="2"   
+                    placeholder="Login Password" bind:value={password}>
+                {:else}
+                    <input type="password" autocomplete="off" tabindex="2"   
+                    placeholder="Login Password" bind:value={password}>
+                  {/if}
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <svg on:click={()=> isView =! isView} xmlns:xlink="http://www.w3.org/1999/xlink" class="sc-gsDKAQ hxODWG icon">
+                    <use xlink:href="#{!isView ? "icon_View" : "icon_Hide"}"></use>
                 </svg>
             </div>
         </div>
     </div>
     <hr>
     <div class="buttons">
-        <button on:click={()=> handleSubmit()} class="sc-iqseJM sc-bqiRlB cBmlor fnKcEH button button-big">
+        <button disabled={track} on:click={()=> handleSubmit()} class="sc-iqseJM sc-bqiRlB cBmlor fnKcEH button button-big">
             <div class="button-inner">
-                {#if load}
-                loading...
-                <!-- <Loader btn={true} /> -->
+            {#if load}
+                <Loader btn={true} />
             {:else}
-                Sign in
+                Sign In
             {/if}
             </div>
         </button>
-        <button on:click={()=> goto("/signup")} class="sc-iqseJM sc-crHmcD cBmlor gEBngo button button-big signup oskks">
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div on:click={()=> goto("/signup")} class="sc-iqseJM sc-crHmcD cBmlor gEBngo button button-big signup oskks">
             <div class="button-inner">
                 <span>Sign up</span>
                 <svg xmlns:xlink="http://www.w3.org/1999/xlink" class="sc-gsDKAQ hxODWG icon">
                     <use xlink:href="#icon_Arrow"></use>
                 </svg>
             </div>
-        </button>
+        </div>
     </div>
 </div>
+
+
+<style>
+.iyEiUf .button {
+    flex: 2 1 0%;
+}
+</style>
