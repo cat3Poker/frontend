@@ -1,4 +1,5 @@
 <script>
+    import { goto } from "$app/navigation";
     import "../../../styles/home.css"
     const banner1 = new URL('$lib/images/banner1.png', import.meta.url).href
     const banner2 = new URL('$lib/images/banner2.png', import.meta.url).href
@@ -17,7 +18,7 @@
                         texas Holdem
                     </div>
                     <div class="button">
-                        <button>play</button>
+                        <button on:click={()=> goto("/texas-holdem")}>play</button>
                     </div>
                 </div>
             </div>
