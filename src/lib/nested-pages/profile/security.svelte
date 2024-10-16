@@ -5,7 +5,6 @@
 
 <div class="KJkjdkp">
     <div class="title-idp">Change Password</div>
-
     <div class="sc-ezbkAF kDuLvp input ">
         <div class="input-label">Old password</div>
         <div class="input-control" >

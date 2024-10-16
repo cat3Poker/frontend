@@ -1,7 +1,6 @@
 <script>
     export let route
     import CloseButton from "$lib/components/close-button.svelte";
-    const logo = new URL('$lib/images/catLogo.png', import.meta.url).href
     import "../../styles/wallet.css"
     import Deposit from "./deposit.svelte";
     import Settings from "./profile/layout.svelte";

@@ -4,6 +4,7 @@
     import Basics from "./basics.svelte";
     import Personal from "./personal.svelte";
     import Security from "./security.svelte";
+    import Upgrade from "./upgrade.svelte";
 
 
 </script>
@@ -17,4 +18,9 @@
 {#if route.tab === "personal"}
     <Personal />
 {/if}
+
+{#if route.tab === "upgrade"}
+    <Upgrade />
+{/if}
+
 
