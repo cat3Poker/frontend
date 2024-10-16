@@ -185,7 +185,7 @@
     display: flex;
     -webkit-box-align: center;
     align-items: center;
-    color: black;
+    color: #fff;
 }
 .default-style {
     padding-top: 3.75rem;
@@ -291,7 +291,7 @@
     opacity: 1;
 }
 .kDuLvp .input-control:focus-within {
-    border-color: var(--primary-color);
+    border-color: var(--active-color);
 }
 .ddROGz .send-input .input-area .input-control:focus-within {
     border: 1px solid var(--primary-color);

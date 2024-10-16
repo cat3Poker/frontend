@@ -40,7 +40,9 @@
                         </button>
                     </div>
                     <div class="djksl filingde niehn">
-                        <div class="jkemOjek">
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div on:click={()=> handleRouteNav("setting")} class="jkemOjek">
                             <img src="{$user?.profile_image ? $user?.profile_image : profile}" alt="">
                         </div>
                     </div>
