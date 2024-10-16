@@ -307,7 +307,7 @@
     padding: 0px;
     border: none;
     background-color: transparent;
-    color: var(--text-color);
+    color: #fff;
 }
 body{
   background-image: url(../lib/images/bg.jpg);

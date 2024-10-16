@@ -43,10 +43,8 @@
                         {(me.route).replace("-", " ")}
                     </div>
                 {/if}
-             
             </div>
         {/each}
         </div>
-   
     </div>
 </div>
