@@ -8,7 +8,7 @@
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">
                 <div style="flex: 1 1 0%;">Withdraw Currency</div>
-                <a href="/transactions/withdraw/ETH">Record</a>
+                <!-- <a href="/transactions/withdraw/ETH">Record</a> -->
             </div>
             <div class="sc-ePIFMk ieqRur input-control">
                 <div class="sc-iNpzLj dbclKc">

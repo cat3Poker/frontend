@@ -74,3 +74,16 @@
         </div>
     </div>
 </div>
+
+<style>
+.kDuLvp .input-control input {
+    flex: 1 1 0%;
+    width: 100%;
+    height: 100%;
+    min-width: 1rem;
+    padding: 0px;
+    border: none;
+    background-color: transparent;
+    color: black;
+}
+</style>

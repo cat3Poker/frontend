@@ -5,8 +5,11 @@
     import Deposit from "./deposit.svelte";
     import Settings from "./profile/layout.svelte";
     import Withdraw from "./withdraw.svelte";
+    import { user } from "$lib/store/profile.js"
     import { page } from "$app/stores";
     import { goto } from "$app/navigation";
+    import Set2Fa from "$lib/components/set2FA.svelte";
+    import Fa from "./profile/_2fa.svelte";
     $: url = $page.url.pathname
     const handleRoute = ((route)=>{
         goto(`${!url ? "/" : url === "/" ? "" : url}?modal=setting&tab=${route}`)
@@ -15,9 +18,11 @@
 
 </script>
 <div class="sc-bkkeKt kBjSXI" style="opacity: 1;">
+    {#if route.modal === "fa"}
+        <Fa />
+    {:else}
     <div class="dialog sc-hRnpUl gA-DObP">
         <div class="dialog-head has-close">
-            <!-- <img alt="" src="{logo}" class="sc-faIbUi jUOgyY"> -->
             <div class="dialog-title">Settings</div>
         </div>
         <CloseButton from="nested" theme={null} />
@@ -45,7 +50,7 @@
                     <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <div on:click={()=>handleRoute("personal")} class="tab {route.tab === "personal" ? "active" : ""}">
                         <svg xmlns:xlink="http://www.w3.org/1999/xlink" class="sc-gsDKAQ hxODWG icon">
-                            <use xlink:href="#icon_person"></use>
+                            <use xlink:href="#icon_UserProfile"></use>
                         </svg>
                         <div class="title">Personal information</div>
                     </div>
@@ -67,9 +72,16 @@
                 {:else if route.modal === "setting"}
                     <Settings {route} />
                 {/if}
+
+                {#if !$user?.fa_auth}
+                    <Set2Fa on:route={(e)=> handleRoute(e.detail)}/>
+                {/if}
+            
             </div>
         </div>
     </div>
+  
+    {/if}
 </div>
 
 <style>

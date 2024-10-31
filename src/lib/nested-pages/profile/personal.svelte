@@ -1,76 +1,127 @@
 <script>
-    let isView = false
+    import { user } from "$lib/store/profile.js";
+    import {app} from "$lib/store/activities.js";
+    import Loader from "$lib/loader.svelte";
+    import { page } from "$app/stores";
+    let personal = {}
+    $: load = false
+    $: track = !personal?.nickname || !personal?.dob || !personal?.firstname || !personal?.city || !personal?.address || !personal?.zipcode
+    const handleSumbit = (async()=>{
+        load = true
+        const { status} = await $app.setProfileDetails(personal)
+        if(status === "success"){
+            window.location.href = $page.url.pathname; 
+        }
+        load = false
+    })
 </script>
 
 
 <div class="KJkjdkp">
     <div class="title-idp">User information</div>
     <div class="detailed-infor">Please fill in the following information to let us know about you. Thank you!</div>
-
     <div class="totally-infolded">
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">Nickname</div>
             <div class="input-control" >
-                 <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" autocomplete="off" placeholder="Enter Nickname" >
+                {#if $user?.details?.nickname}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" readonly value={$user?.details?.nickname} placeholder="Enter Nickname" >
+                {:else}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" tabindex="1" autocomplete="off" bind:value={personal.nickname} placeholder="Enter Nickname" >
+                {/if}
             </div>
         </div>
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">Date of Birth</div>
             <div class="input-control" >
+                {#if $user?.details?.dob}
                  <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" value="19/09/2000" autocomplete="off" placeholder="19/09/2000" >
+                 <input type="date" readonly value={$user?.details?.dob} placeholder="19/09/2000" >
+                {:else}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="date" tabindex="1" max="2006-12-31" bind:value={personal.dob} autocomplete="off" placeholder="19/09/2000" >
+                {/if}
             </div>
         </div>
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">First name</div>
             <div class="input-control" >
+                {#if $user?.details?.firstname}
                  <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" autocomplete="off" placeholder="Enter First namext" >
+                 <input type="text" readonly value={$user?.details?.firstname} >
+               {:else}
+                 <!-- svelte-ignore a11y-positive-tabindex -->
+                 <input type="text" bind:value={personal.firstname} tabindex="1" autocomplete="off" placeholder="Enter First name" >
+               {/if}
             </div>
         </div>
-    
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">Last name</div>
             <div class="input-control" >
-                 <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" autocomplete="off" placeholder="Enter Last name" >
+                {#if $user?.details?.lastname}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" readonly value={$user?.details?.lastname} >
+                {:else}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" bind:value={personal.lastname} tabindex="1" autocomplete="off" placeholder="Enter Last name" >
+                {/if}
             </div>
         </div>
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">Country</div>
             <div class="input-control" >
-                 <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" autocomplete="off" placeholder="Country" >
+                <!-- svelte-ignore a11y-positive-tabindex -->
+                <input type="text" readonly value={$user?.country} >
             </div>
         </div>
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">ZIP/Postal Code</div>
             <div class="input-control" >
-                 <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" autocomplete="off" placeholder="203300" >
+                {#if $user?.details?.zipcode}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" readonly value={$user?.details?.zipcode} >
+                {:else}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" tabindex="1" bind:value={personal.zipcode} autocomplete="off" placeholder="203300" >
+                {/if}
             </div>
         </div>
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">City</div>
             <div class="input-control" >
-                 <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" autocomplete="off" placeholder="City" >
+                {#if $user?.details?.city}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" readonly value={$user?.details?.city} >
+                {:else}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                     <input type="text" tabindex="1" bind:value={personal.city} autocomplete="off" placeholder="City" >
+                {/if}
             </div>
         </div>
         <div class="sc-ezbkAF kDuLvp input ">
             <div class="input-label">Address</div>
             <div class="input-control" >
-                 <!-- svelte-ignore a11y-positive-tabindex -->
-                <input type="text" tabindex="1" autocomplete="off" placeholder="Address" >
+                {#if $user?.details?.address}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" value={$user?.details?.address} >
+                {:else}
+                    <!-- svelte-ignore a11y-positive-tabindex -->
+                    <input type="text" tabindex="1" bind:value={personal.address} autocomplete="off" placeholder="Address" >
+                {/if}
             </div>
         </div>
     </div>
 
     <div class="buttons">
-        <button class="sc-iqseJM sc-bqiRlB cBmlor fnKcEH button button-big">
+        <button disabled={track} on:click={handleSumbit} class="sc-iqseJM sc-bqiRlB cBmlor fnKcEH button button-big">
             <div class="button-inner">
-                Save
+                {#if load}
+                    <Loader color="white"/>
+                {:else}
+                 Save
+                {/if}
             </div>
         </button>
     </div>

@@ -6,8 +6,10 @@
     $: Login = "Login to CAT³ Poker"
     $: SignUp = "Create an account with CAT³ Poker"
     $: forget = "Lost your password?"
+    $: reset = "Reset your password"
 
-    $: display = data.url === "/login" ? Login : data.url === "/signup" ? SignUp : forget
+    $: display = data.url === "/login" ? Login : data.url === "/signup" ? SignUp : (data.url).includes("reset-password") ? reset : forget
+
 </script>
 
 <div class="auth-page">

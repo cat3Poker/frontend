@@ -1,13 +1,15 @@
 <script>
+    import Loader from "$lib/loader.svelte";
+    import { auth } from "$lib/store/activities.js";
     let email = ""
     $: load = false
     const handleSubmit = (async()=>{
-        // load = true
-        // const { status, loading } = await $api_script.login(email, password )
-        // if(status === "success"){
-        //     window.location.href = $app.url; 
-        // }
-        // load = loading
+        load = true
+        const { status, loading } = await $auth.resetPassword(email )
+        if(status === "success"){
+            history.back()
+        }
+        load = loading
     })
 </script>
 
@@ -27,8 +29,7 @@
         <button on:click={()=> handleSubmit()} class="sc-iqseJM sc-bqiRlB cBmlor fnKcEH button button-big long">
             <div class="button-inner">
                 {#if load}
-                loading...
-                <!-- <Loader btn={true} /> -->
+                <Loader color="white" />
             {:else}
                 Get new password
             {/if}
@@ -36,3 +37,16 @@
         </button>
     </div>
 </div>
+
+<style>
+.kDuLvp .input-control input {
+    flex: 1 1 0%;
+    width: 100%;
+    height: 100%;
+    min-width: 1rem;
+    padding: 0px;
+    border: none;
+    background-color: transparent;
+    color: black;
+}
+</style>

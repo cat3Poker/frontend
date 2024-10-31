@@ -1,17 +1,17 @@
 <script>
-        const banner1 = new URL('$lib/images/banner1.png', import.meta.url).href
+       
 </script>
 
 <div class="KkkIOIUWbs">
     <div class="kJEIMSDKL">
-        <img class="kiierkkld" src="{banner1}" alt="">
+        <img class="kiierkkld" src="/assets/banner1.png" alt="">
         <div class="pinningde">
             <div class="game-page">
                 <div class="Lkooee">Play POKER HOLD’EM with your friends</div>
-                <button class="bhsleejj">START NEW GAME</button>
+                <button class="bhsleejj">Cash Game</button>
                 <div class="or-section">Or</div>
                 <div class="Lkooee">Play with the CAT POKER community clubs</div>
-                <button class="bhsleejj find">FIND A GAME/CLUB</button>
+                <button class="bhsleejj find">Tournament</button>
             </div>
         </div>
     </div>

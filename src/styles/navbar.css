@@ -645,6 +645,9 @@
     align-self: center;
     border-radius: 50%;
 }
+
+
+
 @media screen and (max-width: 621px) {
     .fPtvsS .img-star {
         margin-right: 1px;
