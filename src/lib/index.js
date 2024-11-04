@@ -52,6 +52,15 @@ export class APP_script{
             toast.error(error.response.data.error)
         })
     }
+
+    async post(payload, path) {
+        (await axios.post(this.url + `/api/${path}`, payload, {
+            headers: {
+                Authorization: `Bearer ${this.secret}`
+            }
+        })).data
+
+    }
     async generate2FAsecrete(){
         let response = ""
         let path = "/auth/generate-secret/" + this.user?.user_id
