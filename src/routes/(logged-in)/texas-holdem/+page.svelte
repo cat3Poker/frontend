@@ -165,7 +165,6 @@
     raiseInputText.y = 550;
 
     app.stage.addChild(raiseInputText);
-
     // Raise increment/decrement buttons
     const raisePlusButton = createButton("+", () => {
       raiseAmount += 10;
@@ -730,7 +729,7 @@
 
 <div class="KkkIOIUWbs">
   <div class="kJEIMSDKL">
-    <img class="kiierkkld" src={banner1} alt="" />
+    <img class="kiierkkld" src="/assets/banner1.png" alt="" />
     <div class="pinningde">
       <div class="game-page">
         {#if startGameClicked}
