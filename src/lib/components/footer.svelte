@@ -1,12 +1,5 @@
 <script>
     import "../../styles/footer.css"
-    const logo = new URL('$lib/images/catLogo.png', import.meta.url).href
-    const twitter = new URL('$lib/images/twitter.png', import.meta.url).href
-    const telegram = new URL('$lib/images/telegram.png', import.meta.url).href
-    const facebook = new URL('$lib/images/facebook.png', import.meta.url).href
-    const git = new URL('$lib/images/git.png', import.meta.url).href
-    const discord = new URL('$lib/images/discord.png', import.meta.url).href
-    const btc = new URL('$lib/images/btc.png', import.meta.url).href
 
 </script>
 
@@ -15,7 +8,7 @@
         <div class="KJKeiowbkll">
             <div class="reKJkslkjes header">
                 <div class="handleLogenMakieninf">
-                    <img src="{logo}" alt="">
+                    <img src="/assets/logo.png" alt="">
                 </div>
                 <div class="somewriteupsthatdescuriptsit">
                     <p>
@@ -51,12 +44,12 @@
                     Join our community
                 </div>
                 <div class="djhihKJek">
-                    <img src="{telegram}" alt="">
-                    <img src="{git}" alt="">
-                    <img src="{twitter}" alt="">
-                    <img src="{facebook}" alt="">
-                    <img src="{discord}" alt="">
-                    <img src="{btc}" alt="">
+                    <img src="/assets/twitter.png" alt="">
+                    <img src="/assets/git.png" alt="">
+                    <img src="/assets/twitter.png" alt="">
+                    <img src="/assets/facebook.png" alt="">
+                    <img src="/assets/discord.png" alt="">
+                    <img src="/assets/btc.png" alt="">
                 </div>
             </div>
     

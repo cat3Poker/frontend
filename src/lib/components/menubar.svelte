@@ -7,10 +7,10 @@
     let Menu = [
         {icon: "icon_Home", route: "home"},
         {icon: "icon_leaderboard", route: "leaderboard"},
-        {icon: "icon_transaction", route: "transactions"},
+        {icon: "icon_Transaction", route: "transactions"},
         {icon: "icon_staking", route: "staking"},
         {icon: "icon_gaming", route: "gaming"},
-        {icon: "icon_affiliate", route: "affiliate"},
+        {icon: "icon_Affiliate", route: "affiliate"},
         {icon: "icon_daily-reward", route: "daily-reward"},
         {icon: "icon_Setting", route: "game-settings"},
     ]
