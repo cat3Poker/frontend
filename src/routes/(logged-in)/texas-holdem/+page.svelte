@@ -1,72 +1,172 @@
 <script>
     import { goto } from "$app/navigation";
-
+    let JoinGames = [1,2,3,4,5,6,7,8,9,8,,6,5]
 
 </script>
 
-<div class="KkkIOIUWbs">
-  <div class="kJEIMSDKL">
-    <img class="kiierkkld" src="/assets/banner1.png" alt="" />
-    <div class="pinningde">
-      <div class="game-page">
-          <div class="Lkooee">Play POKER HOLD’EM with your friends</div>
-          <button class="bhsleejj" on:click={() => goto("/texas-holdem/123456789")}
-            >START NEW GAME</button >
-          <div class="or-section">Or</div>
-          <div class="Lkooee">Play with the CAT POKER community clubs</div>
-          <button class="bhsleejj find">FIND A GAME/CLUB</button>
+<div class="texas-page">
+  <div class="sc-bOtlzW ftobkw welcome">
+    <div class="container">
+      <div class="section">
+        <button class="sc-iqseJM sc-egiyK cBmlor fnKcEH button button-normal button">
+          <div class="button-inner">Create New Game</div>
+        </button>
+        <div class="title ttu">Available Games to Join</div>
+        <div class="content">
+          <div class="flex">
+            <div class="flex-left">
+              <div class="sc-jFkwbb kJxGxs">
+                <div class="table">
+                  <div class="thead">
+                    <div class="tr fc">
+                      <div class="th">Game ID</div>
+                      <div class="th">Bet Amount</div>
+                    </div>
+                  </div>
+                  <div class="tbody">
+                    {#each JoinGames as gam}
+                      <div class="tr fc">
+                        <div class="td fc player">
+                          <span class="nickname">12345678</span>
+                        </div>
+                        <div class="td fc commission">
+                          <div class="sc-Galmp erPQzq coin notranslate">
+                            <img class="coin-icon" alt="" src="/assets/solana.png">
+                            <div class="amount">
+                              <span class="amount-str">1.<span class="suffix">00000000</span></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
+              </div>
+            </div>
+       
+          </div>
+        </div>
       </div>
+
     </div>
-  </div>
+</div>
 </div>
 
+
 <style>
-  .KkkIOIUWbs {
-    position: relative;
-    height: 100vh;
-    width: 100%;
-  }
-  .kJEIMSDKL {
-    position: relative;
-    margin: 15px 80px;
-  }
-  .kiierkkld {
-    width: 100%;
-    border-radius: 10px;
-  }
-  .game-page {
-    color: #fff;
-    /*position: absolute;
-    top: 20%;
-    left: 25%;*/
-    height: 100%;
+.texas-page {
+    overflow: auto;
+    padding: 0px 20px;
+    margin-bottom: 200px;
+}
+.ftobkw {
+    overflow: auto;
+    padding: 0px 20px;
+}
+.ftobkw > .container {
+    max-width: 1328px;
+    margin: 0px auto;
+    padding-bottom: 120px;
+    background: rgb(36, 38, 43);
+    padding: 30px;
+    width: 800px;
+}
+.ftobkw .section > .title {
+    font-size: 24px;
+    font-weight: 600;
+    color: rgb(245, 246, 247);
+    margin-bottom: 40px;
+    margin-top: 60px;
     text-align: center;
-    border-radius: 10px;
-  }
-  .pinningde {
-    top: 0;
-    position: absolute;
-    background: linear-gradient(
-        0deg,
-        rgba(198, 0, 107, 0.17),
-        rgba(198, 0, 107, 0.17)
-      ),
-      linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
-    backdrop-filter: blur(2px);
-  }
-  .Lkooee {
-    font-size: 18px;
-  }
-  .bhsleejj {
-    margin: 20px 0;
-    background: #1e7929;
-    color: #fff;
-    padding: 15px 25px;
-  }
-  .bhsleejj.find {
-    background: #6b078b;
-  }
+}
+.ftobkw .section > .content > .flex {
+    margin-top: -0.625rem;
+}
+.flex {
+    display: flex;
+}.ftobkw .section > .content > .flex .flex-left{
+    flex: 1 1 49%;
+}
+.kJxGxs .fc {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    cursor: pointer;
+}
+.kJxGxs .tbody .tr:hover{
+  background: rgb(42, 45, 50);
+      border-radius: 1.25rem;
+}
+.kJxGxs .tbody .tr:nth-child(2n-1):hover {
+    background: rgb(42, 45, 50);
+    border-radius: 1.25rem;
+}
+.kJxGxs .tr {
+    padding: 0px 46px;
+}
+.kJxGxs .th, .kJxGxs .td {
+    color: rgb(245, 246, 247);
+    overflow: hidden;
+}
+.kJxGxs .th {
+    color: rgba(153, 164, 176, 0.6);
+}
+.kJxGxs .th:last-child, .kJxGxs .td:last-child {
+    text-align: right;
+}
+.ftobkw .button {
+    width: 370px;
+    height: 70px;
+    display: block;
+    margin: 0px auto;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: inherit;
+}
+.kJxGxs .tbody .tr:nth-child(2n-1) {
+    background: rgb(30, 32, 36);
+    border-radius: 1.25rem;
+}
+.kJxGxs .tbody .tr {
+    height: 3.5rem;
+    font-weight: 600;
+}
+.kJxGxs .tr {
+    padding: 0px 46px;
+}
+.kJxGxs .fc {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+}
+.kJxGxs .nickname {
+    padding-right: 10px;
+}
+.kJxGxs .nickname {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}.erPQzq {
+    display: inline-flex;
+    vertical-align: middle;
+    -webkit-box-align: center;
+    align-items: center;
+    white-space: nowrap;
+}
+.erPQzq .coin-icon {
+    width: 1.4em;
+    height: 1.4em;
+    margin-right: 0.25em;
+}
+.erPQzq .amount-str {
+    width: 7em;
+    display: inline-block;
+}
+.ftobkw > .container > .section {
+    margin-bottom: 70px;
+}
 </style>
