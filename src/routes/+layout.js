@@ -18,7 +18,6 @@ export async function load({ route }) {
     return 
 }
 
-
 const setAPI_url = ((_apiScript, _authScript)=>{
     let localhostUrl = "http://localhost:8000"
     let remoteUrl = "https://cat3poker-d07112c3d84c.herokuapp.com"
