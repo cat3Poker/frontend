@@ -1,15 +1,14 @@
 import { Howl } from 'howler';
 
 export class SoundManager {
+  canPlay: boolean = true;
   stopAll() {
     for (const soundId of Object.keys(this.sounds)) {
       this.stop(soundId)
     }
   }
-  isMusicEnabled() {
-    return true;
-  }
   isPlaying(soundId: string) {
+    
     const sound = this.sounds[soundId];
     return sound ? sound.playing() : false;
   }
@@ -34,6 +33,7 @@ export class SoundManager {
   }
 
   play(soundId: string, delay: number = 0, volume: number = 1, loop: boolean = false) {
+    if (!this.canPlay) return;
     const sound = this.sounds[soundId];
     if (sound) {
       sound.volume(volume);

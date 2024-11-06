@@ -11,9 +11,13 @@ const CHIP_VALUES: { [color: string]: number } = {
   "Yellow": 500,
 };
 class Player {
+
+  id: string;
+  leftGame: boolean;
   chips: number = 2000;
   hand: Card[];
-  currentBet: number;
+  currentBet: number = 0;
+  raisedBet: number = 0;
   folded: boolean;
   ui: Container;
   game: Poker;
@@ -37,16 +41,17 @@ class Player {
   allIn: boolean;
   name: string;
   handRank: any;
-  constructor(game: Poker, private avatar: Texture, name: string = "Guest001", index: number) {
+  handName: any;
+  constructor(game: Poker, private avatar: Texture, name: string = "Guest001", index: number, id: string) {
+    this.id = id;
     this.game = game;
     this.index = index;
     this.name = name;
     this.hand = [];  // Player's cards
-    this.hand = [];
     this.currentBet = 0;
     this.folded = false; // To track if the player has folded
     this.ui = new Container(); // To hold UI elements (name display, chip count, etc.)
-    
+
     this.actionIndicator = new Container();
     this.frameContainer = new Container();
 
@@ -63,6 +68,12 @@ class Player {
     }
   }
 
+  async leaveGame() {
+    
+    // TODO:  post socket leave game;
+    this.leftGame = true;
+  }
+
 
   initialize() {
 
@@ -73,7 +84,7 @@ class Player {
 
       this.chipsBackgroundNormal = Sprite.from(Assets.get('Balance_User_Normal'))
       this.chipsBackgroundActive = Sprite.from(Assets.get('Balance_User_Glow'))
-    
+
       const chipsIcon = Sprite.from(Assets.get('Chip_Arkadium_Blue'))
       this.chipsText = new Text({
         text: this.chips.toLocaleString(), style: {
@@ -92,11 +103,11 @@ class Player {
       chipsIcon.y = this.ui.height / 2 - 20;
       chipsIcon.x = 100;
       // this.chipsBackgroundActive.anchor.set(0.5, 0.5)
-     
+
 
       this.ui.scale.set(0.7)
 
-      
+
     } else {
       const shadow = Sprite.from(Assets.get('Shadow'));
       this.avatarFrame = Sprite.from(Assets.get('PlayerDisplay'));
@@ -105,8 +116,8 @@ class Player {
       //Actions
       this.actionUI = new Container();
       this.actionUI_BG = Sprite.from(Assets.get('Action_Tan'));
-     
-    
+
+
       this.actionUIText = new Text({
         text: '', style: {
           fill: '#ffff',
@@ -133,7 +144,7 @@ class Player {
       nameText.x = this.ui.width / 2;
       nameText.y = this.ui.height - 5;
 
-      this.actionUI.x = this.ui.width / 2 - (this.actionUI_BG.width/2)
+      this.actionUI.x = this.ui.width / 2 - (this.actionUI_BG.width / 2)
 
       this.ui.addChild(nameText, this.actionUI)
 
@@ -153,10 +164,10 @@ class Player {
 
       this.ui.scale.set(0.6, 0.6)
     }
-    
+
 
     this.betChipsUI = new Container();
-    
+
     this.betChipsText = new Text({
       text: '',
       style: {
@@ -166,32 +177,32 @@ class Player {
       }
     });
     this.betChipsText.anchor.set(0.5, 0.5);
-    this.betChipsText.x = 50;
+    this.betChipsText.x = 70;
     this.betChipsUI.addChild(this.betChipsText);
 
- 
+
     this.betChipsIcon = Sprite.from('Chip_Green');
     this.betChipsIcon.anchor.set(0.5, 0.5);
     this.betChipsIcon.scale.set(0.2);
     this.betChipsUI.addChild(this.betChipsIcon, this.betChipsText);
-    
+
 
 
     this.ui.addChild(this.betChipsUI)
     if (!this.index) {
       this.betChipsUI.x = (this.ui.width / 2) + this.betChipsUI.width / 2;
       this.betChipsUI.y = 200
-    } else if (this.index < 3) {
+    } else if (this.index <= 3) {
       this.betChipsUI.x = 250
-      this.betChipsUI.y = 200
+      this.betChipsUI.y = 100
     } else {
-      this.betChipsUI.x = -60
-      this.betChipsUI.y = 210
+      this.betChipsUI.x = -70
+      this.betChipsUI.y = 100
     }
 
 
-   
-    this.raiseBetAmount = Math.max(this.game.maxBet(), this.game.blinds.big);
+
+    this.raiseBetAmount = this.game.blinds.big;
     this.updateUI();
   }
 
@@ -199,43 +210,57 @@ class Player {
     return !this.index;
   }
 
-  setBet(amount: number) {
-    this.currentBet = amount;
+  setBet(amount: number, updateChips: boolean = false) {
+    this.currentBet = Math.min(this.chips, amount);
+    if (updateChips) this.chips -= amount;
+    if (this.actionUI) this.actionUI.alpha = (!this.currentBet || updateChips) ? 0 : 1;
+    this.game.currentBet = this.currentBet;
+    this.raisedBet = 0;
   }
 
   bet() {
 
-    const maxBet = this.game.maxBet();
+    const prevBet = this.game.currentBet;
+    console.log(`${this.name} :> currentBet => ${this.currentBet}, Raised Bet => ${this.raisedBet}`)
 
-    const amount = Math.max(this.currentBet, maxBet);
+    let betting = Math.max(this.currentBet, prevBet, this.raisedBet);
 
-    
-
-    if (!this.isLocal()) {
-      if (amount === this.chips) {
-        this.game.soundManager.play(SoundConstants.CHIME_ALL_IN);
-        this.actionUI_BG.texture = Assets.get('Action_Blue')
-        this.actionUIText.text = 'All In'
-        this.allIn = true;
-      } else if (this.currentBet > maxBet) { // RAISE
-        this.actionUI_BG.texture = Assets.get('Action_Green')
-        this.actionUIText.text = 'Raise'
-        this.game.soundManager.play(SoundConstants.CHIME_RAISE);
-      } else {
-        this.actionUI_BG.texture = Assets.get('Action_Tan')
-        this.actionUIText.text = !maxBet ? 'Check' : 'Call'
-        this.game.soundManager.play(!maxBet ? SoundConstants.CHIME_CHECK : SoundConstants.CHIME_CALL)
-      }
-
-      this.animateAction();
+    if (!this.currentBet) this.currentBet = betting
+    else {
+      //blinds player
+      betting -= this.currentBet;
+      this.currentBet = betting + this.currentBet;
     }
 
-    this.chips -= amount
-    this.game.currentBet = amount
+    console.log('prevBet, betting', prevBet, betting)
+
+
+    if (betting === this.chips) {
+      console.log('All In Bet')
+      this.game.soundManager.play(SoundConstants.CHIME_ALL_IN);
+      this.setAction('Action_Blue', 'All In');
+      this.allIn = true;
+    } else if (betting > prevBet) { // RAISE
+      console.log('Raise Bet')
+      this.setAction('Action_Green', 'Raise');
+      this.game.soundManager.play(SoundConstants.CHIME_RAISE);
+    } else {
+      console.log('Call Bet')
+      this.setAction('Action_Tan', !prevBet ? 'Check' : 'Call');
+      this.game.soundManager.play(!prevBet ? SoundConstants.CHIME_CHECK : SoundConstants.CHIME_CALL)
+    }
+    this.chips -= betting
+    this.game.currentBet = this.currentBet
     this.raiseBetAmount = this.game.blinds.big;
-    if (this.allIn) this.game.createSidePot();
     this.updateUI();
 
+  }
+
+  private setAction(bg: string, text: string) {
+    if (!this.actionUI) return;
+    this.actionUI_BG.texture = Assets.get(bg);
+    this.actionUIText.text = text;
+    this.animateAction();
   }
 
   animateAction() {
@@ -246,29 +271,28 @@ class Player {
     );
   }
 
-  raise() {
-    this.currentBet = Math.min(this.chips, this.raiseBetAmount + this.game.maxBet());
-    if (this.currentBet === this.chips) this.allIn = true;
+  raise(amount: number = this.raiseBetAmount) {
+    this.raisedBet = Math.min(this.chips, (amount + this.game.maxBet()));
     this.bet();
   }
 
   raiseBet(increment: boolean) {
-    this.raiseBetAmount = Math.max(this.game.currentBet, Math.min(this.chips, this.raiseBetAmount + ((increment ? 1 : -1) * this.game.blinds.big)))
+    this.raiseBetAmount = Math.max(this.game.blinds.big, Math.min(this.chips, this.raiseBetAmount + ((increment ? 1 : -1) * this.game.blinds.big)))
   }
 
 
   resetBet() {
-    this.currentBet = 0;
-    this.raiseBetAmount = Math.max(this.game.maxBet(), this.game.blinds.big);
+    this.setBet(0);
+    this.raiseBetAmount = this.game.blinds.big;
     this.updateUI();
   }
 
   fold() {
     this.folded = true;
-    this.actionUI_BG.texture = Assets.get('Action_Red')
-    this.actionUIText.text = 'Fold'
+    this.setAction('Action_Red', 'Fold');
+
     this.game.soundManager.play(SoundConstants.CHIME_FOLD)
-    this.animateAction();
+
     this.updateUI();
   }
 
@@ -296,33 +320,35 @@ class Player {
     if (this.isLocal()) {
       this.chipsBackgroundActive.alpha = this.index === this.game.currentPlayerIndex ? 1 : 0;
       this.chipsBackgroundNormal.alpha = this.index === this.game.currentPlayerIndex ? 0 : 1;
+      this.ui.alpha = this.folded ? 0.5 : 1
     } else {
       this.frameContainer.alpha = this.folded ? 0.5 : 1;
       this.avatarFrame.alpha = this.index === this.game.currentPlayerIndex ? 0 : 1
-      this.avatarFrameActive.alpha = this.index === this.game.currentPlayerIndex ? 1 : 0 
-
-      if (!this.currentBet && !this.actionUI.alpha) {
-        this.actionUI.alpha = 0;
-      }
+      this.avatarFrameActive.alpha = this.index === this.game.currentPlayerIndex ? 1 : 0
     }
     this.betChipsUI.alpha = !!this.currentBet ? 1 : 0
-  
-    this.chipsText.text = this.chips.toLocaleString();
-    this.betChipsText.text = this.currentBet.toLocaleString();
+
+    this.chipsText.text = this.chips.toFixed(4);
+    this.betChipsText.text = this.currentBet.toFixed(4);
     const chipColor = this.getChipColor(this.currentBet);
     if (chipColor) {
-      this.betChipsIcon.texture = Texture.from(`Chip_${chipColor}`); 
+      this.betChipsIcon.texture = Texture.from(`Chip_${chipColor}`);
     }
 
+  }
+
+  isActive() {
+    return this.folded && !this.leftGame;
   }
 
 
   reset() {
     this.resetFold();
     this.resetBet();
-    this.actionUI.alpha = 0;
+    if (this.actionUI) this.actionUI.alpha = 0;
     this.allIn = false;
     this.isDealer = false;
+    this.hand = [];
   }
 
   updateChips(newChips: number) {

@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import Poker from "./Poker.js";
 
   let gameContainer;
   let poker;
+  
+  const dispatch= createEventDispatcher();
 
   const players = [
     {name: 'Gabriel', avatar: 'Gabriel', local: true},
@@ -18,25 +20,24 @@
   const loadPlayers = async () => {
     for (const player of players) {
       
-      poker.addPlayer(player.name, player.avatar, 2000)
+      await poker.addPlayer(player.name, player.avatar)
       await new Promise(resolve => {
-        setTimeout(resolve, 10)
+        setTimeout(resolve, 100)
       })
     }
   }
   
   onMount(() => {
-    poker = new Poker();
-
-
    
-
 
     return () => {
       poker?.destroy();
     }
   });
-  $: if (gameContainer) {
+  $: if (gameContainer && !poker) {
+    poker = new Poker(1,'0001', gameContainer, () => {
+      dispatch('onExit')
+    });
     poker.initialize(gameContainer).then(() => {
        loadPlayers(); // Test
     });
