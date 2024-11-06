@@ -1,9 +1,36 @@
 <script>
+  import Gameview from "$lib/components/texas-holdem/gameview.svelte";
+  let startGameClicked = false;
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+  import { socketData } from "$lib/store/socket";
+    import { pokerGames } from "$lib/store/poker";
   let JoinGames = [1, 2, 3, 4, 5, 6, 7, 8, 9, 8, , 6, 5];
+
+  $: availableGames = $pokerGames.reverse().slice(0, 5);
+  let joiningGame = ''
+
+
+  const joinGame = (id) => {
+    joiningGame= id;
+    startGameClicked = true;
+  }
 </script>
 
-
+{#if startGameClicked}
+  <div class="KkkIOIUWbs">
+    <div class="kJEIMSDKL">
+      <div class="pinningde">
+        <div class="game-page">
+          <Gameview gameId={joiningGame} on:onExit={() => {
+            joiningGame = '';
+            startGameClicked = false
+          }} />
+        </div>
+      </div>
+    </div>
+  </div>
+{:else}
   <div class="texas-page">
     <div class="sc-bOtlzW ftobkw welcome">
       <div class="container">
@@ -11,11 +38,12 @@
           <button
             class="sc-iqseJM sc-egiyK cBmlor fnKcEH button button-normal button"
           >
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div
               class="button-inner"
-              on:click={() => goto("/texas-holdem/123468")}>
+              on:click={() => (startGameClicked = true)}
+            >
               Create New Game
             </div>
           </button>
@@ -32,10 +60,12 @@
                       </div>
                     </div>
                     <div class="tbody">
-                      {#each JoinGames as gam}
-                        <div class="tr fc">
+                      {#each availableGames as gam}
+                      <!-- svelte-ignore a11y-click-events-have-key-events -->
+                      <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div class="tr fc" on:click={() => joinGame(gam.gameId)}>
                           <div class="td fc player">
-                            <span class="nickname">12345678</span>
+                            <span class="nickname">{gam.gameId}</span>
                           </div>
                           <div class="td fc commission">
                             <div class="sc-Galmp erPQzq coin notranslate">
@@ -46,13 +76,29 @@
                               />
                               <div class="amount">
                                 <span class="amount-str"
-                                  >1.<span class="suffix">00000000</span></span
+                                  >{gam.betAmount
+                                    .toFixed(8)
+                                    .substring(
+                                      0,
+                                      gam.betAmount.toFixed(8).indexOf("."),
+                                    )}.<span class="suffix"
+                                    >{gam.betAmount
+                                      .toFixed(8)
+                                      .substring(
+                                        gam.betAmount.toFixed(8).indexOf("."),
+                                      )}</span
+                                  ></span
                                 >
                               </div>
                             </div>
                           </div>
                         </div>
                       {/each}
+                      {#if !availableGames.length}
+                        <div style="color: white; width: 100%; padding: 10px;display: flex; align-items: center; justify-content: center">
+                          <div style="width: fit-content">No Games available</div>
+                        </div>
+                      {/if}
                     </div>
                   </div>
                 </div>
@@ -63,8 +109,30 @@
       </div>
     </div>
   </div>
+{/if}
 
 <style>
+  .KkkIOIUWbs {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+  }
+  .kJEIMSDKL {
+    position: relative;
+    margin: 15px 80px;
+  }
+  .kiierkkld {
+    width: 100%;
+    border-radius: 10px;
+    height: 800px;
+  }
+  .game-page {
+    color: #fff;
+    /*position: absolute;
+    top: 20%;
+    left: 25%;*/
+    height: 100%;
+  }
   .texas-page {
     overflow: auto;
     padding: 0px 20px;
