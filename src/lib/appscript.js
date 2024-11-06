@@ -53,13 +53,13 @@ export class APP_script{
         })
     }
 
+
     async post(payload, path) {
         return (await axios.post(this.url + `/api/${path}`, payload, {
             headers: {
                 Authorization: `Bearer ${this.secret}`
             }
         })).data
-
     }
     async generate2FAsecrete(){
         let response = ""
@@ -127,5 +127,23 @@ export class APP_script{
             toast.error(error.response.data.error)
         })
         return { status:this.status }
+    }
+    async depostAddress(payload) {
+        let path = "/api/wallet/get-address"
+        let response = ""
+        await axios.get(this.url + path, {
+            headers:{
+                Authorization: `Bearer ${this.secret}`
+            }
+        })
+        .then((res)=>{
+            this.status = "success"
+            response = res.data
+        })
+        .catch((error)=>{
+            this.status = "failed"
+            toast.error(error.response.data.error)
+        })
+        return { status:this.status , response}
     }
 }
