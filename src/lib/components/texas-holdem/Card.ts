@@ -74,6 +74,10 @@ class Card {
             });
         });
     }
+    destroy() {
+        this.cardUI.removeFromParent();
+        this.cardUI.destroy();
+    }
 }
 
 export default Card;

@@ -61,8 +61,6 @@
                     </div>
                     <div class="tbody">
                       {#each availableGames as gam}
-                      <!-- svelte-ignore a11y-click-events-have-key-events -->
-                      <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <div class="tr fc" on:click={() => joinGame(gam.gameId)}>
                           <div class="td fc player">
                             <span class="nickname">{gam.gameId}</span>
