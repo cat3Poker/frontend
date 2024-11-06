@@ -20,6 +20,7 @@
                   <div class="thead">
                     <div class="tr fc">
                       <div class="th">Game ID</div>
+                      <div class="th">Players</div>
                       <div class="th">Bet Amount</div>
                     </div>
                   </div>
@@ -28,6 +29,9 @@
                       <div class="tr fc">
                         <div class="td fc player">
                           <span class="nickname">12345678</span>
+                        </div>
+                        <div class="td fc player">
+                          <span class="nickname">1/5</span>
                         </div>
                         <div class="td fc commission">
                           <div class="sc-Galmp erPQzq coin notranslate">
