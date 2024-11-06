@@ -13,6 +13,7 @@ const CHIP_VALUES: { [color: string]: number } = {
 class Player {
 
   id: string;
+  user_id: string;
   leftGame: boolean;
   chips: number = 2000;
   hand: Card[];
@@ -42,6 +43,9 @@ class Player {
   name: string;
   handRank: any;
   handName: any;
+  smallBlinds: boolean;
+  bigBlinds: boolean;
+  initialized: boolean;
   constructor(game: Poker, private avatar: Texture, name: string = "Guest001", index: number, id: string) {
     this.id = id;
     this.game = game;
@@ -69,14 +73,14 @@ class Player {
   }
 
   async leaveGame() {
-    
+
     // TODO:  post socket leave game;
     this.leftGame = true;
   }
 
 
   initialize() {
-
+    if (this.initialized) return;
     if (this.isLocal()) {
 
       this.ui.width = 200;
@@ -130,7 +134,15 @@ class Player {
       this.actionUIText.y = 10;
       this.actionUI.addChild(this.actionUI_BG, this.actionUIText);
 
-      this.frameContainer.addChild(shadow, this.avatarFrame, this.avatarFrameActive, Sprite.from(this.avatar))
+      const image = Sprite.from(this.avatar);
+
+      
+      this.frameContainer.addChild(shadow, this.avatarFrame, this.avatarFrameActive, image)
+      image.width = 200;
+      image.height = 200;
+      image.anchor.set(0.5, 0.5)
+      image.x = this.frameContainer.width / 2 - image.width / 3
+      image.y =  this.frameContainer.height / 2 - image.height / 2
 
       this.ui.addChild(this.frameContainer);
 
@@ -163,6 +175,7 @@ class Player {
 
 
       this.ui.scale.set(0.6, 0.6)
+
     }
 
 
@@ -204,10 +217,11 @@ class Player {
 
     this.raiseBetAmount = this.game.blinds.big;
     this.updateUI();
+    this.initialized = true;
   }
 
   isLocal() {
-    return !this.index;
+    return this.game.playerId === this.id;
   }
 
   setBet(amount: number, updateChips: boolean = false) {
@@ -253,7 +267,35 @@ class Player {
     this.game.currentBet = this.currentBet
     this.raiseBetAmount = this.game.blinds.big;
     this.updateUI();
+  }
 
+  setServerAction(action: string, prevBet) {
+    switch (action) {
+      case 'raise': {
+        this.setAction('Action_Green', 'Raise');
+        this.game.soundManager.play(SoundConstants.CHIME_RAISE)
+        break;
+      }
+      case 'allIn': {
+        this.game.soundManager.play(SoundConstants.CHIME_ALL_IN);
+        this.setAction('Action_Blue', 'All In');
+        this.allIn = true;
+        break;
+      }
+      case 'call': {
+        this.setAction('Action_Tan', !prevBet ? 'Check' : 'Call');
+        this.game.soundManager.play(!prevBet ? SoundConstants.CHIME_CHECK : SoundConstants.CHIME_CALL)
+        break;
+      }
+      case 'fold': {
+        this.folded = true;
+        this.setAction('Action_Red', 'Fold');
+        this.game.soundManager.play(SoundConstants.CHIME_FOLD)
+        break;
+      }
+      default:
+        break;
+    }
   }
 
   private setAction(bg: string, text: string) {
@@ -322,7 +364,7 @@ class Player {
       this.chipsBackgroundNormal.alpha = this.index === this.game.currentPlayerIndex ? 0 : 1;
       this.ui.alpha = this.folded ? 0.5 : 1
     } else {
-      this.frameContainer.alpha = this.folded ? 0.5 : 1;
+      this.frameContainer.alpha = (this.folded || this.leftGame) ? 0.5 : 1;
       this.avatarFrame.alpha = this.index === this.game.currentPlayerIndex ? 0 : 1
       this.avatarFrameActive.alpha = this.index === this.game.currentPlayerIndex ? 1 : 0
     }
@@ -355,7 +397,10 @@ class Player {
     this.chips += newChips;
     this.updateUI();
   }
-
+  destroy() {
+    this.ui.removeFromParent();
+    this.ui.destroy()
+  }
 }
 
 

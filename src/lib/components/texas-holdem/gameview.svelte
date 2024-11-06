@@ -1,6 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import Poker from "./Poker.js";
+  import { app } from "$lib/store/activities.js";
+
+  export let gameId;
 
   let gameContainer;
   let poker;
@@ -35,12 +38,17 @@
     }
   });
   $: if (gameContainer && !poker) {
-    poker = new Poker(1,'0001', gameContainer, () => {
+    poker = new Poker(gameContainer, (message) => {
+      console.log('on End => ', message)
       dispatch('onExit')
     });
-    poker.initialize(gameContainer).then(() => {
-       loadPlayers(); // Test
-    });
+
+    if (!gameId)poker.createGame($app.user.user_id)
+    else poker.joinGame(gameId, $app.user.user_id)
+
+    // poker.initialize(gameContainer).then(() => {
+    //    loadPlayers(); // Test
+    // });
   }
 </script>
 

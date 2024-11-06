@@ -1,18 +1,31 @@
 <script>
   import Gameview from "$lib/components/texas-holdem/gameview.svelte";
-  const banner1 = new URL("$lib/images/banner1.png", import.meta.url).href;
   let startGameClicked = false;
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+  import { socketData } from "$lib/store/socket";
+    import { pokerGames } from "$lib/store/poker";
   let JoinGames = [1, 2, 3, 4, 5, 6, 7, 8, 9, 8, , 6, 5];
+
+  $: availableGames = $pokerGames.reverse().slice(0, 5);
+  let joiningGame = ''
+
+
+  const joinGame = (id) => {
+    joiningGame= id;
+    startGameClicked = true;
+  }
 </script>
 
 {#if startGameClicked}
   <div class="KkkIOIUWbs">
     <div class="kJEIMSDKL">
-      <img class="kiierkkld" src={banner1} alt="" />
       <div class="pinningde">
         <div class="game-page">
-          <Gameview on:onExit={() => (startGameClicked = false)} />
+          <Gameview gameId={joiningGame} on:onExit={() => {
+            joiningGame = '';
+            startGameClicked = false
+          }} />
         </div>
       </div>
     </div>
@@ -45,10 +58,10 @@
                       </div>
                     </div>
                     <div class="tbody">
-                      {#each JoinGames as gam}
-                        <div class="tr fc">
+                      {#each availableGames as gam}
+                        <div class="tr fc" on:click={() => joinGame(gam.gameId)}>
                           <div class="td fc player">
-                            <span class="nickname">12345678</span>
+                            <span class="nickname">{gam.gameId}</span>
                           </div>
                           <div class="td fc commission">
                             <div class="sc-Galmp erPQzq coin notranslate">
@@ -59,13 +72,29 @@
                               />
                               <div class="amount">
                                 <span class="amount-str"
-                                  >1.<span class="suffix">00000000</span></span
+                                  >{gam.betAmount
+                                    .toFixed(8)
+                                    .substring(
+                                      0,
+                                      gam.betAmount.toFixed(8).indexOf("."),
+                                    )}.<span class="suffix"
+                                    >{gam.betAmount
+                                      .toFixed(8)
+                                      .substring(
+                                        gam.betAmount.toFixed(8).indexOf("."),
+                                      )}</span
+                                  ></span
                                 >
                               </div>
                             </div>
                           </div>
                         </div>
                       {/each}
+                      {#if !availableGames.length}
+                        <div style="color: white; width: 100%; padding: 10px;display: flex; align-items: center; justify-content: center">
+                          <div style="width: fit-content">No Games available</div>
+                        </div>
+                      {/if}
                     </div>
                   </div>
                 </div>

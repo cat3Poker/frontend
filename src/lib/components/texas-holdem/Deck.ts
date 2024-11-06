@@ -1,6 +1,7 @@
 import Card from './Card.js';
 
 class Deck {
+  
   suits: string[];
   ranks: string[];
   cards: Card[];
@@ -29,7 +30,9 @@ class Deck {
   deal(numCards: number) {
     return this.cards.splice(0, numCards); // Returns the dealt cards and removes them from the deck
   }
-
+  initializeDeck(decks: [{rank: string, suit: string}]) {
+    this.cards = decks.map(d => new Card(d.rank, d.suit))
+  }
 
 }
 
