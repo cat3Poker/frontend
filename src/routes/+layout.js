@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { APP_script } from '$lib/index.js';
+import { APP_script } from '$lib/appscript.js';
 import { auth_Script } from './(auth)/auth.js';
 import { auth , app} from "$lib/store/activities.js";
 import { getCookie } from "$lib/store/cookies";

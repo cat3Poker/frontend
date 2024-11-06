@@ -55,7 +55,7 @@ export class APP_script{
 
 
     async post(payload, path) {
-        (await axios.post(this.url + `/api/${path}`, payload, {
+        return (await axios.post(this.url + `/api/${path}`, payload, {
             headers: {
                 Authorization: `Bearer ${this.secret}`
             }
