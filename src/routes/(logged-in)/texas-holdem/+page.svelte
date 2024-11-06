@@ -38,6 +38,8 @@
           <button
             class="sc-iqseJM sc-egiyK cBmlor fnKcEH button button-normal button"
           >
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div
               class="button-inner"
               on:click={() => (startGameClicked = true)}
