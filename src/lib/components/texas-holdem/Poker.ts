@@ -2,12 +2,12 @@ import { Application, Assets, Container, Graphics, Sprite, Text, Texture } from 
 import Player from "./Player";
 import { app } from "$lib/store/activities.js";
 import { SoundManager, SoundConstants } from "./SoundManager";
-import type Card from "./Card";
+import Card from "./Card";
 import Deck from "./Deck";
 import gsap from "gsap";
 import DumbAI from "./DumbAI";
-import axios from "axios";
 import { get } from "svelte/store";
+import { io } from "socket.io-client";
 
 type GameState = 'PRE_FLOP' | 'FLOP' | 'TURN' | 'RIVER' | 'SHOWDOWN'
 
@@ -241,87 +241,138 @@ class IconButton extends Button {
     this.ui.addChild(is);
   }
 }
+function drawBoundingBox(app: Application, displayObject) {
+  const bounds = displayObject.getBounds();
 
-const POSITION_INDEX_MAP = (width, height) => {
-  const margin = 20; // Add margin for spacing from edges
-  const verticalSpacing = 180; // Adjust vertical spacing between players
-  const edgeMargin = 100
-  const cardOffsetY = 25;
-  const cardOffsetX = 150;
-
-  return {
-    0: {
-      x: width / 2 - 100,
-      y: width / 2 - 100,
-      cards: {
-        x: width / 2, y: width / 2 - 150
-      },
-    },
-    1: {
-      x: margin + edgeMargin,
-      y: height - margin - verticalSpacing,
-      cards: {
-        x: margin + edgeMargin + cardOffsetX,
-        y: height - margin - verticalSpacing + cardOffsetY,
-      },
-    },
-    2: {
-      x: margin,
-      y: height - margin - 2 * verticalSpacing,
-      cards: {
-        x: margin + cardOffsetX,
-        y: height - margin - 2 * verticalSpacing + cardOffsetY,
-      },
-    },
-    3: {
-      x: margin + edgeMargin,
-      y: height - margin - 3 * verticalSpacing,
-      cards: {
-        x: margin + edgeMargin + cardOffsetX,
-        y: height - margin - 3 * verticalSpacing + cardOffsetY,
-      },
-    },
-    4: {
-      x: width - margin - edgeMargin,
-      y: height - margin - 3 * verticalSpacing,
-      cards: {
-        x: width - margin - edgeMargin - (cardOffsetX / 3.5),
-        y: height - margin - 3 * verticalSpacing + cardOffsetY
-      },
-    },
-    5: {
-      x: width - margin,
-      y: height - margin - 2 * verticalSpacing,
-      cards: {
-        x: width - margin - (cardOffsetX / 3.5),
-        y: height - margin - 2 * verticalSpacing + cardOffsetY
-      },
-    },
-    6: {
-      x: width - margin - edgeMargin,
-      y: height - margin - verticalSpacing,
-      cards: {
-        x: width - margin - edgeMargin - (cardOffsetX / 3.5),
-        y: height - margin - verticalSpacing + cardOffsetY
-      },
-    },
-  }
+  // Create a new Graphics object for the bounding box
+  const boundingBox = new Graphics().setStrokeStyle({
+    width: 2,
+    color: 0xff0000,
+    alpha: 1
+  }).rect(bounds.x, bounds.y, bounds.width, bounds.height);
+  // Add the bounding box to the stage
+  app.stage.addChild(boundingBox);
 }
-export default class Poker {
-  createSidePot() {
-    throw new Error("Method not implemented.");
+
+const getResponsivePositions = (width, height, numPlayers) => {
+  height = height - 120;
+  width = width - 200;
+  const positions = [];
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const offsetX = width * 0.15; // Horizontal offset from the table edges
+  const offsetY = height * 0.15; // Vertical offset from the table edges
+  const cardOffset = 40;
+
+  // Define positions based on player index
+  for (let i = 0; i < numPlayers; i++) {
+    let x, y;
+
+    let cardX, cardY;
+
+    switch (i) {
+      case 0: // Mid-bottom
+        x = centerX;
+        y = height - offsetY;
+        // Calculate card positions relative to player position
+        cardX = x - cardOffset * 2;
+        cardY = y - cardOffset * 3;
+        break;
+      case 1: // Left side lower
+        x = offsetX;
+        y = centerY + offsetY;
+        cardX = x + cardOffset;
+        cardY = y;
+        break;
+      case 2: // Left side upper
+        x = offsetX;
+        y = centerY - offsetY;
+        cardX = x + cardOffset;
+        cardY = y;
+        break;
+      case 3: // Mid-top
+        x = centerX;
+        y = offsetY;
+        cardX = x + cardOffset;
+        cardY = y;
+        break;
+      case 4: // Right side upper
+        x = width - offsetX;
+        y = centerY - offsetY;
+        cardX = x - (cardOffset * 3.5);
+        cardY = y;
+        break;
+      case 5: // Right side lower
+        x = width - offsetX;
+        y = centerY + offsetY;
+        cardX = x - (cardOffset * 3.5);
+        cardY = y;
+        break;
+      default:
+        // For additional players, you can adjust positions accordingly
+        x = centerX;
+        y = centerY;
+    }
+
+
+
+    positions.push({
+      x,
+      y,
+      cards: { x: cardX, y: cardY },
+    });
   }
+
+  return positions;
+};
+
+const getResponsivePositions2 = (width, height, numPlayers) => {
+  const positions = [];
+  const radius = Math.min(width, height) * 0.3; // Adjust radius based on screen size
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const cardOffset = 30;
+
+  const angleStep = (2 * Math.PI) / numPlayers;
+
+  // Set startAngle so that player at index 0 is at mid-bottom
+  let startAngle = Math.PI / 2;
+
+  for (let i = 0; i < numPlayers; i++) {
+    const angle = startAngle + i * angleStep;
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    // Calculate card positions relative to player position
+    const cardX = x + cardOffset * Math.cos(angle);
+    const cardY = y + cardOffset * Math.sin(angle);
+
+    positions.push({
+      x,
+      y,
+      cards: { x: cardX, y: cardY },
+    });
+  }
+
+  return positions;
+};
+
+export default class Poker {
+
+  static MAX_PLAYERS: number = 6;
+  socket: any;
+  gameId: string;  // Now dynamically assigned
 
   gameStarted: boolean = false;
   app: Application;
   currentBet: number = 0;
   gameState: GameState;
   currentPlayerIndex: number = 0;
-  blinds: { small: number, big: number } = { small: 20, big: 40 };
+
+  blinds: { small: number, big: number } = { small: 0.01, big: 0.02 };
   round = 1;
   players: Player[] = [];
   soundManager: SoundManager;
-  pots: number[] = [0];
+  pot: number = 0;
   communityCards: Card[] = [];
   deck: Deck;
   foldButton: Button;
@@ -330,7 +381,7 @@ export default class Poker {
   raiseButton: Button;
   plusRaiseButton: IconButton;
   allInButton: Button;
-  static MAX_PLAYERS: number = 7;
+
   playersContainer: Container;
   waitingText: Text;
   buttonsContainer: Container;
@@ -347,15 +398,143 @@ export default class Poker {
   roundStartIndex: number;
   potContainer: Container;
   potText: Text;
-
-  constructor() {
+  continueButton: Button;
+  onExitGameCallback: () => void
+  destroyed: boolean;
+  constructor(private betAmount: number, gameId: string, private parentContainer, callback?: () => void) {
+    this.onExitGameCallback = callback;
     this.currentBet = this.blinds.big;
     this.gameState = 'PRE_FLOP';
     this.app = new Application();
     this.soundManager = new SoundManager();
     this.deck = new Deck();
+    this.socket = io();
+    this.gameId = gameId; // Initialize gameId
+
+
+    this.initializeSocketEvents();
+
+    // if (this.gameId) {
+    //   this.joinGame(this.gameId);
+    // }
+
   }
 
+
+  initializeSocketEvents() {
+    this.socket.on("connect", () => {
+      console.log("Connected to server");
+    });
+
+    this.socket.on("gameJoined", (gameData) => {
+      console.log("Joined game:", gameData);
+      this.gameId = gameData.gameId; // Set gameId from server
+      this.initializeGame(gameData);
+    });
+
+
+    this.socket.on("playerJoined", (playerData) => {
+      if (playerData.gameId === this.gameId && playerData.id !== this.socket.id) {
+        this.addPlayer(playerData.name, playerData.avatar, playerData.id);
+        this.updateUI();
+      }
+    });
+    this.socket.on("gameStarted", (gameData) => {
+      
+      this.startGame(gameData);
+    });
+
+
+    // ... other socket.on events for game updates
+    this.socket.on("playerAction", (actionData) => {
+      const player = this.players.find(p => p.id === actionData.playerId);
+      if (player) {
+        switch (actionData.action) {
+          case "fold":
+            player.fold();
+            break;
+          case "call":
+            player.bet();
+            break;
+          case "raise":
+            player.raise(actionData.amount);
+            break;
+          case "allIn":
+            player.setBet(player.chips);
+            break;
+        }
+        this.soundManager.play(SoundConstants.BUTTON_CLICK)
+        this.currentPlayerIndex = actionData.nextPlayerIndex;
+        this.updateUI();
+      }
+    });
+
+    this.socket.on("gameStateUpdated", (gameData) => {
+      // Update game state from server data
+      this.gameState = gameData.gameState;
+      this.communityCards = gameData.communityCards.map(cardData => new Card(cardData.rank, cardData.suit)); // Assuming you have a Card class
+      this.pot = gameData.pot;
+      this.currentBet = gameData.currentBet;
+
+      // Update player information if needed (chips, bets, etc.)
+      for (const playerData of gameData.players) {
+        const playerIndex = this.players.findIndex(p => p.id === playerData.id);
+        if (playerIndex !== -1) {
+          this.players[playerIndex].chips = playerData.chips;
+          this.players[playerIndex].currentBet = playerData.currentBet;
+          this.players[playerIndex].folded = playerData.folded;
+          this.players[playerIndex].allIn = playerData.allIn;
+        }
+      }
+
+      this.updateUI();
+    });
+
+    this.socket.on("gameEnded", (gameData) => {
+      this.gameEnded = true;
+      this.updateUI();
+    });
+
+    this.socket.on("playerLeft", (playerId) => {
+      this.removePlayer(playerId)
+    });
+
+  }
+
+
+  async createGame() {
+    this.socket.emit("createGame", { betAmount: this.betAmount });
+  }
+
+  joinGame(gameId: string) {
+    this.socket.emit("joinGame", { gameId });
+  }
+
+  async initializeGame(gameData) { // new function to handle game setup
+    // Set up initial game state based on gameData from server
+    this.betAmount = gameData.betAmount;
+    // ... set other game properties like blinds, etc.
+
+
+    for (const player of gameData.players) {
+      if (player.id === this.socket.id) { // Local player
+        this.addPlayer(player.name, player.avatar, player.id);
+      } else {
+        this.addPlayer(player.name, player.avatar, player.id);
+      }
+    }
+
+    await this.initialize(this.parentContainer);
+    this.updateUI(); // Update after all players added
+
+    if (gameData.gameStarted) {
+      this.startGame(); // Start if game is already in progress
+    }
+
+
+  }
+ 
+  
 
   async initialize(parent: HTMLElement) {
     await this.app.init({
@@ -469,15 +648,15 @@ export default class Poker {
     this.app.stage.addChild(backgroundSprite);
 
     // Add the table
-    const Landscape = Sprite.from(Assets.get('Landscape'));
-    Landscape.width = this.app.screen.width * 0.8; // Resize to 80% of screen width
-    Landscape.height = this.app.screen.height;
-    Landscape.x = (this.app.screen.width - Landscape.width) / 2;
-    Landscape.y = 0;
+    const Table = Sprite.from(Assets.get('Landscape'));
+    Table.width = this.app.screen.width * 0.8; // Resize to 80% of screen width
+    Table.height = this.app.screen.height;
+    Table.x = (this.app.screen.width - Table.width) / 2;
+    Table.y = 0;
 
     // Add the Table sprite to the stage
-    this.app.stage.addChild(Landscape);
-
+    this.app.stage.addChild(Table);
+    drawBoundingBox(this.app, Table)
 
     // Add Game actions
     this.buttonsContainer = new Container();
@@ -536,16 +715,17 @@ export default class Poker {
     this.waitingText.y = this.app.screen.height - this.waitingText.height - 40; // Position at the bottom - padding
 
 
+
+
+
     this.cardsContainer = new Container();
-    this.cardsContainer.width = Landscape.width;
-    this.cardsContainer.height = Landscape.height;
-    this.cardsContainer.x = Landscape.x;
+    this.cardsContainer.width = Table.width;
+    this.cardsContainer.height = Table.height;
+    this.cardsContainer.x = Table.x;
     this.cardsContainer.y = 0;
 
 
     this.dealerContainer = new Container();
-
-
     const dbg = Sprite.from(Assets.get('Texture_DealerBubble'));
 
     this.dealerContainer.addChild(dbg)
@@ -587,7 +767,7 @@ export default class Poker {
     this.cardsContainer.addChild(this.dealerButton)
 
 
-    /// Pots Contaner
+    /// Pot Container
 
     this.potContainer = new Container();
     const stackContainer = new Container();
@@ -597,6 +777,7 @@ export default class Poker {
         fill: '#ffffff',
         align: 'center',
         fontSize: 25,
+        fontWeight: 'bolder'
       }
     });
     this.potText.y = 80;
@@ -618,9 +799,9 @@ export default class Poker {
 
     //Players
     this.playersContainer = new Container();
-    this.playersContainer.width = Landscape.width;
-    this.playersContainer.height = Landscape.height;
-    this.playersContainer.x = Landscape.x;
+    this.playersContainer.width = Table.width;
+    this.playersContainer.height = Table.height;
+    this.playersContainer.x = Table.x;
     this.playersContainer.y = 0;
 
 
@@ -628,24 +809,79 @@ export default class Poker {
     this.app.stage.addChild(this.cardsContainer, this.playersContainer, this.dealerContainer, this.potContainer);
 
     this.potContainer.x = (this.app.screen.width - this.potContainer.width) / 2;
-    this.potContainer.y = 100;
+    const centerY = this.app.screen.height / 2;
+    this.potContainer.y = centerY - this.app.screen.height * 0.26;
     this.dealerContainer.x = (this.app.screen.width - this.dealerContainer.width) / 2; // Center horizontally
     // this.dealerContainer.y = this.app.screen.height - this.dealerContainer.height - 40; // Position at the bottom - padding
+
+
+    //Game Control Buttons
+    const gameControls = new Container();
+    const shareButton = new Button(Assets.get('Button_Blue'), 'Share', '', buttonWidth, buttonHeight, this.handleShare.bind(this));
+    const exitButton = new Button(Assets.get('Button_Red'), 'Exit', '', buttonWidth, buttonHeight, this.handleExit.bind(this));
+    gameControls.addChild(shareButton.ui, exitButton.ui);
+
+
+    this.app.stage.addChild(gameControls);
+    exitButton.ui.y = buttonPadding + buttonHeight
+    gameControls.x = 20;
+    gameControls.y = this.app.screen.height / 2 - buttonHeight * 2;
 
 
     // BG music
     this.soundManager.play(SoundConstants.GAMEPLAY_MUSIC, 0, 1, true)
 
+    this.continueButton = new Button(Assets.get('Button_Blue'), 'Continue Playing', '', buttonWidth + 120, buttonHeight, this.handleContinueGame.bind(this));
+    this.continueButton.ui.alpha = 0;
+    this.app.stage.addChild(this.continueButton.ui)
+
+    this.continueButton.ui.x = (this.app.screen.width - this.continueButton.ui.width) / 2; // Center horizontally
+    this.continueButton.ui.y = this.app.screen.height / 2 - buttonHeight * 2;
+
+
+
     this.updateUI();
   }
 
+  handleShare() {
+    //@ts-ignore
+    navigator.clipboard.writeText(`${get(app)?.url}/texas-holdem/${this.gameId}`); // Write this.gameId to clipboard
+  }
+  async handleExit() {
+    await this.localPlayer().leaveGame();
+    if (this.onExitGameCallback) this.onExitGameCallback();
+  }
 
-  async startGame() {
+  handleContinueGame() {
+    if (!this.gameEnded) return;
+    this.resetGame();
+    this.updateUI();
+    if (this.players.length === Poker.MAX_PLAYERS) this.startGame();
+  }
+
+
+
+  positionPlayers() {
+    const positions = getResponsivePositions(
+      this.app.screen.width,
+      this.app.screen.height,
+      this.players.length
+    );
+
+    this.players.forEach((player, index) => {
+      player.ui.x = positions[index].x - player.ui.width / 2;
+      player.ui.y = positions[index].y - player.ui.height / 2;
+    });
+  }
+
+
+  async startGame(data?: any) {
     //Deal cards;
-    this.gameEnded = false;
+    this.resetGame();
+
     this.gameStarted = true;
     this.dealingCards = true;
-    this.resetGame();
+
     this.updateUI();
 
 
@@ -653,18 +889,19 @@ export default class Poker {
     //Assign small & large blinds
 
     // Assign Dealer;
-    this.dealerIndex = 4// Math.floor(Math.random() * this.players.length);
+    this.dealerIndex = Math.floor(Math.random() * this.players.length);
     this.players[this.dealerIndex].isDealer = true;
     this.dealerButton.alpha = 1;
-    this.dealerButton.x = this.players[this.dealerIndex].ui.x + (this.dealerIndex < 3 ? 0 : -20);
-    this.dealerButton.y = this.players[this.dealerIndex].ui.y + (this.players[this.dealerIndex].ui.height / 2);
+    this.dealerButton.x = this.players[this.dealerIndex].ui.x + (this.dealerIndex <= 3 ? 0 : -20);
+    this.dealerButton.y = this.players[this.dealerIndex].ui.y;
 
     // Assign small & large blinds
     const smallBlindIndex = (this.dealerIndex + 1) % this.players.length;
     const bigBlindIndex = (this.dealerIndex + 2) % this.players.length;
 
-    this.players[smallBlindIndex].setBet(this.blinds.small);
-    this.players[bigBlindIndex].setBet(this.blinds.big);
+
+    this.players[smallBlindIndex].setBet(this.blinds.small, true);
+    this.players[bigBlindIndex].setBet(this.blinds.big, true);
 
     this.currentBet = this.blinds.big;
 
@@ -673,25 +910,30 @@ export default class Poker {
 
     this.roundStartIndex = this.currentPlayerIndex;
 
-    await this.toggleDealerContainer(true)
 
-    this.typewriteText(this.dealerText, 'Okay, Everyone: If you\'re playing, then...', 50, () => {
-      this.typewriteText(this.dealerText, '... ante up!', 50, () => {
-        setTimeout(() => {
-          this.typewriteText(this.dealerText, 'Here are your cards!', 50, () => {
-            this.dealCards().then(() => {
-              this.dealingCards = false;
-              this.updateUI()
-              this.typewriteText(this.dealerText, 'Good luck!', 50, () => {
-                setTimeout(() => {
-                  this.toggleDealerContainer(false);
-                }, 2000)
-              })
-            });
-          })
-        }, 2000)
-      })
-    })
+    this.dealCards().then(() => {
+      this.dealingCards = false;
+      this.updateUI()
+
+      this.checkAIPlay();
+      // this.typewriteText(this.dealerText, 'Good luck!', 50, () => {
+      //   setTimeout(() => {
+      //     this.toggleDealerContainer(false);
+      //   }, 2000)
+      // })
+    });
+
+    // await this.toggleDealerContainer(true)
+
+    // this.typewriteText(this.dealerText, 'Okay, Everyone: If you\'re playing, then...', 50, () => {
+    //   this.typewriteText(this.dealerText, '... ante up!', 50, () => {
+    //     setTimeout(() => {
+    //       this.typewriteText(this.dealerText, 'Here are your cards!', 50, () => {
+
+    //       })
+    //     }, 2000)
+    //   })
+    // })
   }
   async toggleDealerContainer(show: boolean = false) {
     if (show) {
@@ -722,7 +964,9 @@ export default class Poker {
   async dealCards() {
     let cards = 0;
     while (cards < 2) {
+      if (this.destroyed) return;
       for (const player of this.players) {
+        if (this.destroyed) break;
         const card = this.deck.deal(1)[0];
         player.hand.push(card);
         if (!player.index) {
@@ -740,13 +984,18 @@ export default class Poker {
     }
   }
   animateCardDealing(sprite: Container, startIndex: number, offset: { x: number, y: number }) {
+    const positions = getResponsivePositions(
+      this.app.screen.width,
+      this.app.screen.height,
+      this.players.length
+    );
     const index = startIndex % this.players.length;
     return new Promise<void>((resolve) => {
       sprite.x = this.defaultCardPosition.x;
       sprite.y = this.defaultCardPosition.y;
       gsap.to(sprite, {
-        x: POSITION_INDEX_MAP(this.app.screen.width - 450, this.app.screen.height - 100)[index].cards.x + offset.x,
-        y: POSITION_INDEX_MAP(this.app.screen.width - 450, this.app.screen.height - 100)[index].cards.y + offset.y,
+        x: positions[index].cards.x + offset.x,
+        y: positions[index].cards.y + offset.y,
         rotation: 0,
         alpha: 1,
         duration: 0.2,
@@ -760,13 +1009,16 @@ export default class Poker {
   }
   animateCommunityCardDealing(sprite: Container) {
     let index = this.communityCards.length;
-    const offset = 150;
+    const centerY = this.app.screen.height / 2;
+    const offsetX = this.app.screen.width * 0.2;
+    const offsetY = this.app.screen.height * 0.125;
+
     return new Promise<void>((resolve) => {
       sprite.x = this.defaultCardPosition.x;
       sprite.y = this.defaultCardPosition.y;
       gsap.to(sprite, {
-        x: (index * 80) + offset,
-        y: 200,
+        x: (index * 80) + offsetX,
+        y: centerY - offsetY,
         rotation: 0,
         alpha: 1,
         duration: 0.2,
@@ -794,22 +1046,17 @@ export default class Poker {
     }, typingSpeed);
   }
 
-  async addPlayer(name: string, avatar: string, chips: number) {
+  async addPlayer(name: string, avatar: string, id: string) {
     if (this.players.length === Poker.MAX_PLAYERS) return;
 
-    const player = new Player(this, await Assets.load(avatar), name, this.players.length);
-    player.chips = chips;
+    const player = new Player(this, await Assets.load(avatar), name, this.players.length, id);
+    player.chips = this.betAmount;
     this.players.push(player);
     this.playersContainer.addChild(player.ui)
 
     player.initialize();
 
-
-
-
-    // Position Players
-    player.ui.x = POSITION_INDEX_MAP(this.app.screen.width - 450, this.app.screen.height - 100)[this.players.length - 1].x
-    player.ui.y = POSITION_INDEX_MAP(this.app.screen.width - 450, this.app.screen.height - 100)[this.players.length - 1].y
+    this.positionPlayers();
 
     if (this.players.length === Poker.MAX_PLAYERS) this.startGame();
     this.updateUI();
@@ -819,6 +1066,30 @@ export default class Poker {
     return !this.dealingCards && this.gameStarted
   }
 
+
+  removePlayer(playerId) {
+    const playerIndex = this.players.findIndex((p) => p.id === playerId);
+
+    if (playerIndex !== -1) {
+      this.players[playerIndex].ui.destroy();
+      this.players.splice(playerIndex, 1);
+      //Re-index
+      for (let i = 0; i < this.players.length; i++) {
+        this.players[i].index = i;
+      }
+      this.positionPlayers();
+      this.updateUI();
+    }
+
+  }
+
+  // localPlayerTurn() {
+  //   return this.players[this.currentPlayerIndex]?.id === this.socket.id && !this.dealingCards;;
+  // }
+
+  // localPlayer() {
+  //   return this.players.find(p => p.id === this.socket.id)
+  // }
   localPlayerTurn() {
     return this.players[this.currentPlayerIndex]?.isLocal() && !this.dealingCards;
   }
@@ -829,19 +1100,29 @@ export default class Poker {
 
 
   async nextPlayer() {
+    if (this.destroyed) return;
     this.currentPlayerIndex = this.currentPlayerIndex + 1 % this.players.length
     if (this.currentPlayerIndex === this.players.length) this.currentPlayerIndex = 0;
-    while (this.players[this.currentPlayerIndex].folded && this.currentPlayerIndex !== this.roundStartIndex) this.currentPlayerIndex++;
+    while ((this.players[this.currentPlayerIndex].folded || this.players[this.currentPlayerIndex].allIn) && this.currentPlayerIndex !== this.roundStartIndex) this.currentPlayerIndex++;
     if (this.currentPlayerIndex === this.roundStartIndex) {
       await this.advanceGame();
       if (this.gameState === 'SHOWDOWN')
         return;
+      // return await this.nextPlayer();
     }
     if (!this.currentPlayerIndex) this.soundManager.play(SoundConstants.CHIME_YOUR_TURN)
+
+    //TODO: Test AI
+    this.checkAIPlay();
+  }
+
+
+  checkAIPlay() {
+
     if (this.currentPlayerIndex) {
       DumbAI.play(this, this.players[this.currentPlayerIndex]);
-      setTimeout(() => {
-        this.nextPlayer()
+      setTimeout(async () => {
+        await this.nextPlayer()
         this.updateUI();
       }, 2000)
     }
@@ -859,12 +1140,11 @@ export default class Poker {
 
     // this.buttonsContainer.alpha = this.gameStarted ? 1 : 0;
 
-    this.waitingText.alpha = this.gameStarted && !this.gameEnded ? 0 : 1;
+    this.waitingText.alpha = !this.gameStarted && !this.gameEnded ? 1 : 0;
 
-    if (!this.gameStarted || this.gameEnded) {
-      this.waitingText.text = this.gameEnded ? 'Game Ended' : `Waiting for ${Poker.MAX_PLAYERS - this.players.length} to join...`
-    }
+    this.waitingText.text = `Waiting for ${Poker.MAX_PLAYERS - this.players.length} to join...`
 
+    this.continueButton.ui.alpha = this.gameEnded ? 1 : 0
 
 
     this.raiseButton.subText.text = this.localPlayer()?.raiseBetAmount.toLocaleString() || this.blinds.big.toLocaleString();
@@ -875,10 +1155,32 @@ export default class Poker {
     this.minusRaiseButton.toggleButtonState(this.localPlayer()?.raiseBetAmount > this.blinds.big)
     this.plusRaiseButton.toggleButtonState(!(this.localPlayer()?.raiseBetAmount >= this.localPlayer()?.chips))
 
-    this.potContainer.alpha = this.pots[0] ? 1 : 0;
-    this.potText.text = this.pots[0].toLocaleString()
+    this.potContainer.alpha = this.pot ? 1 : 0;
+    this.potText.text = this.pot.toFixed(4)
 
   }
+
+
+  // handleFold() {
+  //   if (!this.localPlayerTurn()) return;
+  //   this.socket.emit("playerAction", { gameId: this.gameId, action: "fold" });
+
+  // }
+  // handleCall() {
+  //   if (!this.localPlayerTurn()) return;
+  //   this.socket.emit("playerAction", { gameId: this.gameId, action: "call" });
+
+  // }
+  // handleRaise() {
+  //   if (!this.localPlayerTurn()) return;
+  //   this.socket.emit("playerAction", { gameId: this.gameId, action: "raise", amount: this.localPlayer().raiseBetAmount });
+
+  // }
+  // handleAllIn() {
+  //   if (!this.localPlayerTurn()) return;
+  //   this.socket.emit("playerAction", { gameId: this.gameId, action: "allIn" });
+
+  // }
 
   handleFold() {
     if (!this.localPlayerTurn()) return;
@@ -897,7 +1199,7 @@ export default class Poker {
   }
   handleRaise() {
     if (!this.localPlayerTurn()) return;
-    this.localPlayer().raise()
+    this.localPlayer().raise(this.localPlayer().raiseBetAmount)
     this.soundManager.play(SoundConstants.BUTTON_CLICK)
     this.nextPlayer()
     this.updateUI();
@@ -926,10 +1228,23 @@ export default class Poker {
 
   resetGame() {
     this.deck.reset();
+    this.communityCards.forEach(c => c.cardUI.removeFromParent());
+    this.players.forEach(p => {
+      p.hand.forEach(h => h.cardUI.removeFromParent())
+      p.reset();
+    });
+    this.players = this.players.filter(p => !p.leftGame);
+    this.gameState = 'PRE_FLOP';
+    this.gameStarted = false;
+    this.gameEnded = false;
+    this.dealingCards = false;
+    this.pot = 0;
+    this.communityCards = [];
   }
 
   async advanceGame() {
     this.dealingCards = true;
+    if (this.destroyed) return;
     this.updateUI();
     switch (this.gameState) {
       case "PRE_FLOP":
@@ -937,7 +1252,7 @@ export default class Poker {
 
         // Collect all bets to pots
 
-        this.pots[0] += this.players.reduce((prev, curr) => prev + curr.currentBet, 0);
+        this.pot += this.players.reduce((prev, curr) => prev + curr.currentBet, 0);
         //Reset Bets
         this.players.forEach(p => p.setBet(0));
         this.updateUI();
@@ -946,49 +1261,52 @@ export default class Poker {
 
 
 
-        await this.toggleDealerContainer(true)
-        this.typewriteText(this.dealerText, 'Here comes the flop!', 50, async () => {
-          this.toggleDealerContainer();
-          await this.dealCommunityCards(3);
-          this.dealingCards = false;
-          this.updateUI();
-        });
+        // await this.toggleDealerContainer(true)
+        // this.typewriteText(this.dealerText, 'Here comes the flop!', 50, async () => {
+        //   this.toggleDealerContainer();
+
+        // });
+        await this.dealCommunityCards(3);
+        this.dealingCards = false;
+        this.updateUI();
         break;
       case "FLOP":
         this.gameState = 'TURN';
 
         // Collect all bets to pots
-        this.pots[0] += this.players.reduce((prev, curr) => prev + curr.currentBet, 0);;
+        this.pot += this.players.reduce((prev, curr) => prev + curr.currentBet, 0);;
         //Reset Bets
         this.players.forEach(p => p.setBet(0));
         this.updateUI();
 
 
-        await this.toggleDealerContainer(true)
-        this.typewriteText(this.dealerText, 'Here comes the turn!', 50, async () => {
-          this.toggleDealerContainer();
-          await this.dealCommunityCards(1);
-          this.dealingCards = false;
-          this.updateUI();
-        });
+        // await this.toggleDealerContainer(true)
+        // this.typewriteText(this.dealerText, 'Here comes the turn!', 50, async () => {
+        //   this.toggleDealerContainer();
+
+        // });
+        await this.dealCommunityCards(1);
+        this.dealingCards = false;
+        this.updateUI();
         break;
       case "TURN":
         this.gameState = 'RIVER';
 
         // Collect all bets to pots
-        this.pots[0] += this.players.reduce((prev, curr) => prev + curr.currentBet, 0);
+        this.pot += this.players.reduce((prev, curr) => prev + curr.currentBet, 0);
         //Reset Bets
         this.players.forEach(p => p.setBet(0));
         this.updateUI();
 
 
-        await this.toggleDealerContainer(true)
-        this.typewriteText(this.dealerText, 'Here comes the river!', 50, async () => {
-          this.toggleDealerContainer();
-          await this.dealCommunityCards(1);
-          this.dealingCards = false;
-          this.updateUI();
-        });
+        // await this.toggleDealerContainer(true)
+        // this.typewriteText(this.dealerText, 'Here comes the river!', 50, async () => {
+        //   this.toggleDealerContainer();
+
+        // });
+        await this.dealCommunityCards(1);
+        this.dealingCards = false;
+        this.updateUI();
         break;
       case "RIVER":
         this.gameState = 'SHOWDOWN';
@@ -1001,24 +1319,27 @@ export default class Poker {
           hand: [...p.hand.map(c => c.stringName()), ...this.communityCards.map(c => c.stringName())]
         }))
         //@ts-ignore
-        const response = await get(app)?.post({ players: handPayload }, 'poker/eval');
+        const response = await get(app)?.post({ players: handPayload }, 'poker/eval')
         this.players.forEach(p => {
           p.handRank = response.ranks[p.name].handRank;
+          p.handName = response.ranks[p.name].handName;
         })
         const activePlayers = this.players.filter(p => !p.folded).sort((a, b) => b.handRank - a.handRank);
 
         // Give pot to winner;
-        activePlayers[0].chips += this.pots[0];
+        activePlayers[0].chips += this.pot;
         const winner = activePlayers[0];
-        this.pots[0] = 0;
+        this.pot = 0;
 
         await this.toggleDealerContainer(true)
-        this.typewriteText(this.dealerText, `${winner.name} Won the pot ${activePlayers.length === 1 ? 'because everyone else folded' : ''}`, 50, async () => {
-          this.toggleDealerContainer();
-          await this.dealCommunityCards(1);
-          this.gameEnded = true;
-          this.dealingCards = false;
-          this.updateUI();
+        this.soundManager.play(SoundConstants.AUDIENCE_CLAP_HAPPY);
+        this.typewriteText(this.dealerText, `${winner.name} Won the pot ${activePlayers.length === 1 ? 'because everyone else folded' : `"${winner.handName}"`}`, 50, async () => {
+          setTimeout(() => {
+            this.toggleDealerContainer();
+            this.gameEnded = true;
+            this.dealingCards = false;
+            this.updateUI()
+          }, 2000)
         });
         break;
       case "SHOWDOWN":
@@ -1027,10 +1348,12 @@ export default class Poker {
   async dealCommunityCards(count: number) {
     const cards = this.deck.deal(count);
     for (const card of cards) {
+      if (this.destroyed) break;
       card.revealCard(false);
       card.cardUI.scale.set(0.4, 0.4)
       this.cardsContainer.addChild(card.cardUI)
       this.communityCards.push(card)
+      this.soundManager.play(SoundConstants.CARD_DEAL);
       await this.animateCommunityCardDealing(card.cardUI)
     }
   }
@@ -1040,6 +1363,10 @@ export default class Poker {
   }
 
   destroy() {
+    this.destroyed = true;
+    this.soundManager.canPlay = false;
     this.soundManager.stopAll()
+    this.socket.emit('leaveGame', { gameId: this.gameId });
+    this.socket.disconnect();
   }
 }

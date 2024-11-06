@@ -734,9 +734,9 @@
 </div>
 
 <style>
-      .KkkIOIUWbs {
+    .KkkIOIUWbs {
     position: relative;
-    height: 100vh;
-    width: 100%;
+    height: 100%;
+    max-width: 1328px;
   }
 </style>
