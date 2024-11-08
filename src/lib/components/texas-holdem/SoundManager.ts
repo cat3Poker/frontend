@@ -8,7 +8,6 @@ export class SoundManager {
     }
   }
   isPlaying(soundId: string) {
-    
     const sound = this.sounds[soundId];
     return sound ? sound.playing() : false;
   }

@@ -423,7 +423,8 @@ export default class Poker {
   async initLoadingScreen() {
     await this.app.init({
       backgroundColor: 0x000,
-      resizeTo: parent,
+      width: 1034, height: 534
+      // resizeTo: parent,
     });
 
     this.parentContainer.appendChild(this.app.canvas);
@@ -864,10 +865,10 @@ export default class Poker {
 
     // Add the table
     const Table = Sprite.from(Assets.get('Landscape'));
-    Table.width = this.app.screen.width * 0.8; // Resize to 80% of screen width
-    Table.height = this.app.screen.height;
+    Table.width = this.app.screen.width * 1.1; // Resize to 80% of screen width
+    Table.height = this.app.screen.height * 1.2;
     Table.x = (this.app.screen.width - Table.width) / 2;
-    Table.y = 0;
+    Table.y = -12;
 
     // Add the Table sprite to the stage
     this.app.stage.addChild(Table);
@@ -916,7 +917,7 @@ export default class Poker {
     this.waitingText = new Text({
       text: '',
       style: {
-        fontSize: 30,
+        fontSize: 18,
         fill: '#ffffff'
       }
     });
@@ -927,7 +928,7 @@ export default class Poker {
     this.waitingText.alpha = 0;
 
     this.waitingText.x = (this.app.screen.width - this.waitingText.width) / 2; // Center horizontally
-    this.waitingText.y = this.app.screen.height - this.waitingText.height - 40; // Position at the bottom - padding
+    this.waitingText.y = this.app.screen.height - this.waitingText.height - 2; // Position at the bottom - padding
 
 
 
@@ -1034,11 +1035,11 @@ export default class Poker {
     const gameControls = new Container();
     const shareButton = new Button(Assets.get('Button_Blue'), 'Share', '', buttonWidth, buttonHeight, this.handleShare.bind(this));
     const exitButton = new Button(Assets.get('Button_Red'), 'Exit', '', buttonWidth, buttonHeight, this.handleExit.bind(this));
-    gameControls.addChild(shareButton.ui, exitButton.ui);
+    // gameControls.addChild(shareButton.ui);
 
 
     this.app.stage.addChild(gameControls);
-    exitButton.ui.y = buttonPadding + buttonHeight
+    // exitButton.ui.y = buttonPadding + buttonHeight
     gameControls.x = 20;
     gameControls.y = this.app.screen.height / 2 - buttonHeight * 2;
 
@@ -1073,8 +1074,6 @@ export default class Poker {
     this.updateUI();
     if (this.players.length === Poker.MAX_PLAYERS) this.startGame();
   }
-
-
 
   positionPlayers() {
     const positions = getResponsivePositions(
@@ -1377,11 +1376,6 @@ export default class Poker {
       }
       this.updateUI();
     }
-
-
-
-
-
 
   }
 

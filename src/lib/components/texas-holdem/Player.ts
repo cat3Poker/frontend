@@ -138,8 +138,8 @@ class Player {
 
       
       this.frameContainer.addChild(shadow, this.avatarFrame, this.avatarFrameActive, image)
-      image.width = 200;
-      image.height = 200;
+      image.width = 130;
+      image.height = 130;
       image.anchor.set(0.5, 0.5)
       image.x = this.frameContainer.width / 2 - image.width / 3
       image.y =  this.frameContainer.height / 2 - image.height / 2
@@ -164,7 +164,7 @@ class Player {
         text: this.chips.toLocaleString(), style: {
           fill: '#ffff',
           align: 'center',
-          fontSize: 40
+          fontSize: 20
         }
       });
       this.frameContainer.addChild(this.chipsText);

@@ -6,7 +6,7 @@
     import Menubar from "$lib/components/menubar.svelte";
     import Navbar from "$lib/components/navbar.svelte";
     import Nested_page from "$lib/nested-pages/layout.svelte";
-    $: isCollabs = false
+    $: isCollabs = true
     $: queryString = ""
     $: params = ""
     $: tab = {}

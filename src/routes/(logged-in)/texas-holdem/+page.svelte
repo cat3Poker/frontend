@@ -1,49 +1,32 @@
 <script>
-  import Gameview from "$lib/components/texas-holdem/gameview.svelte";
   let startGameClicked = false;
   import { goto } from "$app/navigation";
+  import { browser } from "$app/environment";
   import { onMount } from "svelte";
   import { socketData } from "$lib/store/socket";
-    import { pokerGames } from "$lib/store/poker";
-  let JoinGames = [1, 2, 3, 4, 5, 6, 7, 8, 9, 8, , 6, 5];
+  import { pokerGames } from "$lib/store/poker";
+  import { page } from "$app/stores";
 
+  $: url = $page.url.pathname
   $: availableGames = $pokerGames.reverse().slice(0, 5);
-  let joiningGame = ''
 
+  const handleRouteNav = (( route)=>{
+      goto(`${!url ? "/" : url === "/" ? "" : url}?modal=${route}`)
+      if(browser){
+          document.body.style.overflow = 'hidden';
+      } 
+  })
 
-  const joinGame = (id) => {
-    joiningGame= id;
-    startGameClicked = true;
-  }
 </script>
 
-{#if startGameClicked}
-  <div class="KkkIOIUWbs">
-    <div class="kJEIMSDKL">
-      <div class="pinningde">
-        <div class="game-page">
-          <Gameview gameId={joiningGame} on:onExit={() => {
-            joiningGame = '';
-            startGameClicked = false
-          }} />
-        </div>
-      </div>
-    </div>
-  </div>
-{:else}
   <div class="texas-page">
     <div class="sc-bOtlzW ftobkw welcome">
       <div class="container">
         <div class="section">
-          <button
-            class="sc-iqseJM sc-egiyK cBmlor fnKcEH button button-normal button"
-          >
+          <button  class="sc-iqseJM sc-egiyK cBmlor fnKcEH button button-normal button">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div
-              class="button-inner"
-              on:click={() => (startGameClicked = true)}
-            >
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div class="button-inner" on:click={() => handleRouteNav("texas-create-id")}>
               Create New Game
             </div>
           </button>
@@ -61,7 +44,9 @@
                     </div>
                     <div class="tbody">
                       {#each availableGames as gam}
-                        <div class="tr fc" on:click={() => joinGame(gam.gameId)}>
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div class="tr fc" on:click={() => goto(`/texas-holdem/`+ gam.gameId)}>
                           <div class="td fc player">
                             <span class="nickname">{gam.gameId}</span>
                           </div>
@@ -107,30 +92,10 @@
       </div>
     </div>
   </div>
-{/if}
+
 
 <style>
-  .KkkIOIUWbs {
-    position: relative;
-    height: 100vh;
-    width: 100%;
-  }
-  .kJEIMSDKL {
-    position: relative;
-    margin: 15px 80px;
-  }
-  .kiierkkld {
-    width: 100%;
-    border-radius: 10px;
-    height: 800px;
-  }
-  .game-page {
-    color: #fff;
-    /*position: absolute;
-    top: 20%;
-    left: 25%;*/
-    height: 100%;
-  }
+
   .texas-page {
     overflow: auto;
     padding: 0px 20px;

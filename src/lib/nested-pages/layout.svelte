@@ -10,6 +10,7 @@
     import { goto } from "$app/navigation";
     import Set2Fa from "$lib/components/set2FA.svelte";
     import Fa from "./profile/_2fa.svelte";
+    import CreateId from "./create-id.svelte";
     $: url = $page.url.pathname
     const handleRoute = ((route)=>{
         goto(`${!url ? "/" : url === "/" ? "" : url}?modal=setting&tab=${route}`)
@@ -23,7 +24,7 @@
     {:else}
     <div class="dialog sc-hRnpUl gA-DObP">
         <div class="dialog-head has-close">
-            <div class="dialog-title">Settings</div>
+            <div class="dialog-title">{ route.modal === "texas-create-id" ? "Create Game" : "Settings"}</div>
         </div>
         <CloseButton from="nested" theme={null} />
         <div class="dialog-body no-style sc-hRnpUl gA-DObP" >
@@ -71,6 +72,8 @@
                     <Withdraw />
                 {:else if route.modal === "setting"}
                     <Settings {route} />
+                {:else if route.modal === "texas-create-id"}
+                    <CreateId {route} />
                 {/if}
 
                 {#if !$user?.fa_auth}
