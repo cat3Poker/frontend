@@ -31,8 +31,7 @@
   }
   
   onMount(() => {
-   
-
+  
     return () => {
       poker?.destroy();
     }

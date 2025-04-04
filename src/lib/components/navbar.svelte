@@ -26,7 +26,7 @@
             <div class="sc-DtmNo euzHLF right">
                 <div class="sc-gjNHFA juteh wallet-enter">
                     <button class="balance">
-                        <img src="assets/solana.png" class="img-coin" alt="">
+                        <img src="/assets/solana.png" class="img-coin" alt="">
                         <span> {balanceFormat($user?.balance)}</span>
                     </button>
                     <button on:click={()=> handleRouteNav("deposit")} class="deposit-contss">

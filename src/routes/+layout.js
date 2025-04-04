@@ -20,7 +20,7 @@ export async function load({ route }) {
 
 const setAPI_url = ((_apiScript, _authScript)=>{
     let localhostUrl = "http://localhost:8000"
-    let remoteUrl = "https://cat3poker-d07112c3d84c.herokuapp.com"
+    let remoteUrl = "https://cat3poker-game.onrender.com"
     const _api = location.hostname === "localhost" || location.hostname === "127.0.0.1"
     ? localhostUrl : remoteUrl
     _apiScript.backend_url(_api) 
